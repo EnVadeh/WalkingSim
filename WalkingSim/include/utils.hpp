@@ -4,10 +4,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/exponential.hpp>
-#include "stb_image.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/ext.hpp>
-
+#include <iostream>
 
 //enum VAO_IDs { Triangles, NumVAOs };
 enum bufferID { ArrayBuffer, ElementBuffer, NumBuffers };
@@ -37,7 +36,7 @@ static const std::string renderTextures[3] = {
 extern float deltaTime; // Time between current frame and last frame
 extern float lastFrame;
 
-static size_t SHADER_COUNT = 0;
+extern size_t SHADER_COUNT;
 
 extern std::vector <GLuint> SHADERS;
 

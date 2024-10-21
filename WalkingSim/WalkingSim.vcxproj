@@ -138,6 +138,8 @@
     <ClCompile Include="source\camera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="source\utils.cpp" />
+    <ClCompile Include="source\texture.cpp" />
+    <ClCompile Include="source\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\buffer.hpp" />
@@ -145,6 +147,7 @@
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\utils.hpp" />
     <ClInclude Include="include\shader.hpp" />
+    <ClInclude Include="include\texture.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\testFS.glsl" />

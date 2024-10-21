@@ -1,6 +1,6 @@
 #include "shader.hpp"
 
-shader::shader(std::string filepath1, std::string filepath2) {
+shader::shader(const std::string& filepath1, const std::string& filepath2) {
 	tess = false;
 
 	std::ifstream shaderFile1(filepath1);
@@ -19,7 +19,7 @@ shader::shader(std::string filepath1, std::string filepath2) {
 
 }
 
-shader::shader(std::string filepath1, std::string filepath2, std::string filepath3, std::string filepath4) {
+shader::shader(const std::string& filepath1, const std::string& filepath2, const std::string& filepath3, const std::string& filepath4) {
 	tess = true;
 
 	std::ifstream shaderFile1(filepath1);
@@ -91,6 +91,7 @@ GLuint shader::createShader() {
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 	SHADER_COUNT++;
+	std::cout << SHADER_COUNT;
 	SHADERS.push_back(program);
 	return program;
 }

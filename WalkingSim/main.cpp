@@ -6,6 +6,8 @@
 #include "include/camera.hpp"
 #include "include/shader.hpp"
 #include "include/buffer.hpp"
+#include "include/texture.hpp"
+
 
 void GLAPIENTRY MessageCallback(GLenum source,
 	GLenum type,
@@ -26,11 +28,11 @@ void updateDeltaTime() {
 	lastFrame = currentFrame;
 }
 
-camera mainCam(glm::vec3{ 0.0, 0.0, 0.0 }, glm::vec3{ 0.0, 0.0, -1.0 }, -90.0, 0.0);
+camera* mainCam = nullptr;
 
 void keyCallback(GLFWwindow* window, GLint key, GLint scancode, GLint action, GLint mods) {
 	if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-		mainCam.processKeyboardInput(key);
+		mainCam->processKeyboardInput(key);
 	}
 }
 
@@ -49,8 +51,7 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 
 	lastX = xpos;
 	lastY = ypos;
-
-	mainCam.processMouseInput(xoffset, yoffset);
+	mainCam->processMouseInput(xoffset, yoffset);
 }
 
 int main() {
@@ -73,6 +74,12 @@ int main() {
 	GLuint testShader = test.createShader();
 	std::vector<Vertex> apple;
 	buffer tesss(apple, drawFreq::dynamicDraw);
+	textureManager testure;
+	testure.loadTexture("E:/NEW_DOanload/water.jpg", "water");
+	testure.loadTexture("E:/NEW_DOanload/heightmap.png", "heightmap");
+	testure.bindTexture(0, 0, 2, testShader);
+	camera myCam(glm::vec3{ 0.0, 0.0, 0.0 }, glm::vec3{ 0.0, 0.0, -1.0 }, -90.0, 0.0);
+	mainCam = &myCam;
 
 	glfwSwapInterval(1);
 	//put these things in a fucniton so i can just call the draw frame buffers and all these things type shit
