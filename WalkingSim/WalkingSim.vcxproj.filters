@@ -27,6 +27,9 @@
     <ClCompile Include="source\shader.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\utils.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stb_image.h">

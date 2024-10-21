@@ -91,7 +91,9 @@ GLuint shader::createShader() {
 		glGetProgramInfoLog(program, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
-
+	SHADER_COUNT++;
+	SHADERS.resize(SHADER_COUNT);
+	SHADERS.push_back(program);
 	return program;
 }
 

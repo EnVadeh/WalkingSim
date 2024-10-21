@@ -6,8 +6,6 @@
 #include "include/camera.hpp"
 #include "include/shader.hpp"
 
-
-
 void GLAPIENTRY MessageCallback(GLenum source,
 	GLenum type,
 	GLuint id,

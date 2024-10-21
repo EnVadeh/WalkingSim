@@ -136,6 +136,7 @@
     <ClCompile Include="source\shader.cpp" />
     <ClCompile Include="source\camera.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="source\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.hpp" />

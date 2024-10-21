@@ -26,5 +26,5 @@ private:
 public:
 	shader(std::string filepath1, std::string filepath2);
 	shader(std::string filepath1, std::string filepath2, std::string filepath3, std::string filepath4);
-	GLuint createShader();
+	GLuint createShader(); //REMEMBER THIS WILL ADD ALL SHADERS TO AN ARRAY SO THAT THE CAMERA MATRICES ARE SENT
 };

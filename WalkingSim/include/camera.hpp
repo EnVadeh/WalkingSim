@@ -11,4 +11,7 @@ private:
 	glm::mat4 matProjView; 
 public:
 	camera(glm::vec3 initPos, glm::vec3 initDir);
+	void keyMovement();
+	void mouseMovement();
+	void setCam();
 };
