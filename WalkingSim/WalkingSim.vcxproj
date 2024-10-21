@@ -133,12 +133,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\buffer.cpp" />
     <ClCompile Include="source\shader.cpp" />
     <ClCompile Include="source\camera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="source\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\buffer.hpp" />
     <ClInclude Include="include\camera.hpp" />
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\utils.hpp" />

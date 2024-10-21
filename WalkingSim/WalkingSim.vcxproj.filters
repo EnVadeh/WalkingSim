@@ -30,6 +30,9 @@
     <ClCompile Include="source\utils.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\buffer.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stb_image.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\shader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\buffer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,6 +5,7 @@
 #include <random>
 #include "include/camera.hpp"
 #include "include/shader.hpp"
+#include "include/buffer.hpp"
 
 void GLAPIENTRY MessageCallback(GLenum source,
 	GLenum type,
@@ -17,6 +18,39 @@ void GLAPIENTRY MessageCallback(GLenum source,
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
 		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
 		type, severity, message);
+}
+
+void updateDeltaTime() {
+	float currentFrame = glfwGetTime();
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
+}
+
+camera mainCam(glm::vec3{ 0.0, 0.0, 0.0 }, glm::vec3{ 0.0, 0.0, -1.0 }, -90.0, 0.0);
+
+void keyCallback(GLFWwindow* window, GLint key, GLint scancode, GLint action, GLint mods) {
+	if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+		mainCam.processKeyboardInput(key);
+	}
+}
+
+void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
+	static bool firstMouse = true;
+	static GLfloat lastX = xpos, lastY = ypos;
+
+	if (firstMouse) {
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	GLfloat xoffset = xpos - lastX;
+	GLfloat yoffset = lastY - ypos;
+
+	lastX = xpos;
+	lastY = ypos;
+
+	mainCam.processMouseInput(xoffset, yoffset);
 }
 
 int main() {
@@ -34,15 +68,21 @@ int main() {
 	if (glewInit() != GLEW_OK) {
 		return -1;
 	}
-
+	
 	shader test("shaders/testVS.glsl", "shaders/testFS.glsl");
 	GLuint testShader = test.createShader();
+	std::vector<Vertex> apple;
+	buffer tesss(apple, drawFreq::dynamicDraw);
 
 	glfwSwapInterval(1);
 	//put these things in a fucniton so i can just call the draw frame buffers and all these things type shit
 	glEnable(GL_DEBUG_OUTPUT);
 	while (!glfwWindowShouldClose(window)) {
 		GLenum err;
+		updateDeltaTime();
+		glfwSetKeyCallback(window, keyCallback);
+		glfwSetCursorPosCallback(window, mouseCallback);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		glDepthMask(GL_TRUE);

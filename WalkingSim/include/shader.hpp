@@ -16,7 +16,7 @@ struct tessShaderSource {
 	std::string fragmentSource;
 };
 
-class shader {
+class shader { //SHADSERS WONT BE AFFECTED MUCH BY DSA OR NOT
 private:
 	simpleShaderSource simpleShader; //need better name
 	tessShaderSource tessShader;
