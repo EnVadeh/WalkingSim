@@ -72,12 +72,12 @@ int main() {
 	
 	shader test("shaders/testVS.glsl", "shaders/testFS.glsl");
 	GLuint testShader = test.createShader();
-	std::vector<Vertex> apple;
-	buffer tesss(apple, drawFreq::dynamicDraw);
-	textureManager testure;
-	testure.loadTexture("E:/NEW_DOanload/water.jpg", "water");
-	testure.loadTexture("E:/NEW_DOanload/heightmap.png", "heightmap");
-	testure.bindTexture(0, 0, 2, testShader);
+	//std::vector<Vertex> apple;
+	//buffer tesss(apple, drawFreq::dynamicDraw);
+	//textureManager testure;
+	//testure.loadTexture("E:/NEW_DOanload/water.jpg", "water");
+	//testure.loadTexture("E:/NEW_DOanload/heightmap.png", "heightmap");
+	//testure.bindTexture(0, 0, 2, testShader);
 	camera myCam(glm::vec3{ 0.0, 0.0, 0.0 }, glm::vec3{ 0.0, 0.0, -1.0 }, -90.0, 0.0);
 	mainCam = &myCam;
 

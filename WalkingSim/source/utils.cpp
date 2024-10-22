@@ -16,40 +16,54 @@ void setUniform(GLuint shaderID, std::string name, unsigned int val)
 {
 	const char* uniformNameptr = &name[0];
 	GLint Loc = glGetUniformLocation(shaderID, uniformNameptr);
-	glUniform1ui(Loc, val);
+	if (Loc == -1)
+		std::cout << "Uniform " << name << " cannot be found!" << std::endl;
+	glProgramUniform1ui(shaderID, Loc, val);
 }
 void setUniform(GLuint shaderID, std::string name, int val)
 {
 	const char* uniformNameptr = &name[0];
 	GLint Loc = glGetUniformLocation(shaderID, uniformNameptr);
-	glUniform1i(Loc, val);
+	if (Loc == -1)
+		std::cout << "Uniform " << name << " cannot be found!" << std::endl;
+	glProgramUniform1i(shaderID, Loc, val);
 }
 void setUniform(GLuint shaderID, std::string name, float val)
 {
 	const char* uniformNameptr = &name[0];
-	GLint Loc = glGetUniformLocation(shaderID, uniformNameptr);
-	glUniform1f(Loc, val);
+	GLint Loc = glGetUniformLocation(shaderID, uniformNameptr);	
+	if (Loc == -1)
+		std::cout << "Uniform " << name << " cannot be found!" << std::endl;
+	glProgramUniform1f(shaderID, Loc, val);
 }
 void setUniform(GLuint shaderID, std::string name, glm::vec3 val)
 {
 	const char* uniformNameptr = &name[0];
 	GLint Loc = glGetUniformLocation(shaderID, uniformNameptr);
-	glUniform3fv(Loc, 1, glm::value_ptr(val));
+	if (Loc == -1)
+		std::cout << "Uniform " << name << " cannot be found!" << std::endl;
+	glProgramUniform3fv(shaderID, Loc, 1, glm::value_ptr(val));
 }
 void setUniform(GLuint shaderID, std::string name, glm::vec4 val)
 {
 	const char* uniformNameptr = &name[0];
 	GLint Loc = glGetUniformLocation(shaderID, uniformNameptr);
-	glUniform4fv(Loc, 1, glm::value_ptr(val));
+	if (Loc == -1)
+		std::cout << "Uniform " << name << " cannot be found!" << std::endl;
+	glProgramUniform4fv(shaderID, Loc, 1, glm::value_ptr(val));
 }
 void setUniform(GLuint shaderID, std::string name, glm::mat3 val)
 {
 	const char* uniformNameptr = &name[0];
 	GLint Loc = glGetUniformLocation(shaderID, uniformNameptr);
-	glUniformMatrix3fv(Loc, 1, GL_FALSE, glm::value_ptr(val));
+	if (Loc == -1)
+		std::cout << "Uniform " << name << " cannot be found!" << std::endl;
+	glProgramUniformMatrix3fv(shaderID, Loc, 1, GL_FALSE, glm::value_ptr(val));
 }
 void setUniform(GLuint shaderID, std::string name, glm::mat4 val) {
 	const char* uniformNameptr = &name[0];
 	GLint Loc = glGetUniformLocation(shaderID, uniformNameptr);
-	glUniformMatrix4fv(Loc, 1, GL_FALSE, glm::value_ptr(val));
+	if (Loc == -1)
+		std::cout << "Uniform " << name << " cannot be found!" << std::endl;
+	glProgramUniformMatrix4fv(shaderID, Loc, 1, GL_FALSE, glm::value_ptr(val));
 }

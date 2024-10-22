@@ -12,8 +12,8 @@ private:
 
 	void updateCameraVectors();
 public:
-	GLfloat fYaw; //horizontal
-	GLfloat fPitch; //vertical
+	GLfloat fYaw = 0; //horizontal
+	GLfloat fPitch = 0; //vertical
 	
 	camera(glm::vec3 initPos, glm::vec3 initDir, GLfloat yaw, GLfloat pitch);
 	void processKeyboardInput(GLint key);

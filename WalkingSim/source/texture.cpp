@@ -42,6 +42,6 @@ void textureManager::bindTexture(size_t unit, size_t index, size_t count, GLuint
 	}
 	for (size_t i = 0; i < count; i++) {
 		glBindTextureUnit(unit + i, textures[index + i]);
-		//setUniform(shaderID, texNames[index + i], static_cast<unsigned int>(unit + i));
+		setUniform(shaderID, texNames[index + i], static_cast<unsigned int>(unit + i));
 	}
 }

@@ -57,7 +57,7 @@ GLuint shader::compileShader(GLuint shaderType, const std::string& shaderSource)
 	const char* src = shaderSource.c_str();
 	glShaderSource(shaderID, 1, &src, NULL); //just like vaos and vbos, how many and what offset? 1 and NULL
 	glCompileShader(shaderID);
-	return shaderID;		
+	return shaderID;
 }
 
 GLuint shader::createShader() {
@@ -91,8 +91,6 @@ GLuint shader::createShader() {
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 	SHADER_COUNT++;
-	std::cout << SHADER_COUNT;
 	SHADERS.push_back(program);
 	return program;
 }
-

@@ -8,7 +8,6 @@ camera::camera(glm::vec3 initPos, glm::vec3 initDir, GLfloat yaw, GLfloat pitch)
 
 void camera::setCam() {
 	matProjView = matProj * matView;
-	std::cout << SHADER_COUNT;
 	for (size_t i = 0; i < SHADER_COUNT; i++)
 		setUniform(SHADERS[i], "matProjView", matProjView);
 }

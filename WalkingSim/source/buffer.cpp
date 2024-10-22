@@ -45,6 +45,7 @@ buffer::buffer(std::vector<Vertex> vertices, std::vector<GLuint> indices, drawFr
 }
 
 void buffer::draw(drawID dI, drawType dT, glm::vec3 pos, glm::vec3 rotation,  glm::vec3 size, GLuint shaderID) {
+	glBindProgramPipeline(shaderID);
 	glm::mat4 matModel = createGeometricToWorldMatrix(pos, rotation, size);
 	setUniform(shaderID, "matModel", matModel);
 	glPatchParameteri(GL_PATCH_VERTICES, 4);
