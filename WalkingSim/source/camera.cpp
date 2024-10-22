@@ -13,7 +13,7 @@ void camera::setCam() {
 }
 
 void camera::processKeyboardInput(GLint key) {
-	float cameraSpeed = 2.5f * deltaTime;
+	float cameraSpeed = 7.5f * deltaTime;
 	if (key == GLFW_KEY_W) vEye += cameraSpeed * vFront;
 	if (key == GLFW_KEY_S) vEye -= cameraSpeed * vFront;
 	if (key == GLFW_KEY_A) vEye -= glm::normalize(glm::cross(vFront, vUp)) * cameraSpeed;

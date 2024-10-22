@@ -67,6 +67,11 @@ GLuint shader::createShader() {
 		GLuint fs = compileShader(GL_FRAGMENT_SHADER, simpleShader.fragmentSource);
 		glAttachShader(program, vs);
 		glAttachShader(program, fs);
+		glLinkProgram(program);
+		glValidateProgram(program);
+		glDeleteShader(vs);
+		glDeleteShader(fs);
+
 	}
 	else {
 		GLuint vs = compileShader(GL_VERTEX_SHADER, tessShader.vertexSource);
@@ -77,10 +82,15 @@ GLuint shader::createShader() {
 		glAttachShader(program, tcs);
 		glAttachShader(program, tes);
 		glAttachShader(program, fs);
+		glLinkProgram(program);
+		glValidateProgram(program);
+		glDeleteShader(vs);
+		glDeleteShader(tcs);
+		glDeleteShader(tes);
+		glDeleteShader(fs);
 	}
 
-	glLinkProgram(program);
-	glValidateProgram(program);
+	
 	GLint infoLogLength = 512;
 	int success;
 	char infoLog[512];

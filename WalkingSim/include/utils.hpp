@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/ext.hpp>
 #include <iostream>
+#include <memory>
 
 //enum VAO_IDs { Triangles, NumVAOs };
 enum bufferID { ArrayBuffer, ElementBuffer, NumBuffers };

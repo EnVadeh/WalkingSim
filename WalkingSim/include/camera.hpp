@@ -3,7 +3,6 @@
 
 class camera {
 private:
-	glm::vec3 vEye;
 	glm::vec3 vUp = {0.0f, 1.0f, 0.0f};
 	glm::vec3 vFront;
 	glm::mat4 matView;
@@ -12,6 +11,7 @@ private:
 
 	void updateCameraVectors();
 public:
+	glm::vec3 vEye;
 	GLfloat fYaw = 0; //horizontal
 	GLfloat fPitch = 0; //vertical
 	

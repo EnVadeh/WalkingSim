@@ -72,6 +72,23 @@ int main() {
 	
 	shader test("shaders/testVS.glsl", "shaders/testFS.glsl");
 	GLuint testShader = test.createShader();
+
+	GLfloat testvrs[9] =
+	{ -0.5, 0, 0,
+	   0, 0.5, 0,
+	   0.5, 0, 0
+	};
+
+	GLuint testVAO, testVBO;
+	glCreateVertexArrays(1, &testVAO);
+	glCreateBuffers(1, &testVBO);
+
+	glNamedBufferData(testVBO, sizeof(testvrs), testvrs, GL_STATIC_DRAW);
+
+	glVertexArrayAttribFormat(testVAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
+	glEnableVertexArrayAttrib(testVAO, 0);
+	glVertexArrayVertexBuffer(testVAO, 0, testVBO, 0, 3 * sizeof(float));
+
 	//std::vector<Vertex> apple;
 	//buffer tesss(apple, drawFreq::dynamicDraw);
 	//textureManager testure;
@@ -80,6 +97,9 @@ int main() {
 	//testure.bindTexture(0, 0, 2, testShader);
 	camera myCam(glm::vec3{ 0.0, 0.0, 0.0 }, glm::vec3{ 0.0, 0.0, -1.0 }, -90.0, 0.0);
 	mainCam = &myCam;
+	glm::mat4 modeltry = createGeometricToWorldMatrix(glm::vec3(20, 20, -20), glm::vec3(0, 0, 0), glm::vec3(20, 20, 20));
+	setUniform(testShader, "matModel", modeltry);
+	terrain tesst(10, 10);
 
 	glfwSwapInterval(1);
 	//put these things in a fucniton so i can just call the draw frame buffers and all these things type shit
@@ -119,6 +139,10 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(testShader);
 		glViewport(0, 0, 1000, 1000);
+		glBindVertexArray(testVAO);
+		glUseProgram(testShader);
+		//glDrawArrays(GL_TRIANGLES, 0, 9);
+		tesst.draw(testShader, glm::vec3(0, 0, 0), glm::vec3(20, 20, 20));
 		//drawing to the final renderquad
 		glfwSwapBuffers(window);
 		while ((err = glGetError()) != GL_NO_ERROR)
