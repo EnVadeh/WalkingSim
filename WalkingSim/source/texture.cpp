@@ -25,7 +25,7 @@ void textureManager::loadTexture(const std::string& path, const std::string& nam
 		}
 		glTextureStorage2D(texID, 1, sizedFormat, width, height);
 		glTextureSubImage2D(texID, 0, 0, 0, width, height, baseFormat, GL_UNSIGNED_BYTE, data);
-		//glGenerateTextureMipmap(texID);
+		glGenerateTextureMipmap(texID);
 		stbi_image_free(data);
 		textures.push_back(texID);
 		texNames.push_back(name);
@@ -42,6 +42,6 @@ void textureManager::bindTexture(size_t unit, size_t index, size_t count, GLuint
 	}
 	for (size_t i = 0; i < count; i++) {
 		glBindTextureUnit(unit + i, textures[index + i]);
-		setUniform(shaderID, texNames[index + i], static_cast<unsigned int>(unit + i));
+		setUniform(shaderID, texNames[index + i], static_cast<int>(unit + i));
 	}
 }

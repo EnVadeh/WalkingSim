@@ -1,6 +1,6 @@
 #include "light.hpp"
 
-void lightManager::initLight(glm::vec3 lightPos, glm::vec3 lightDir, glm::vec3 lightColor) {
+void lightManager::initLight(glm::vec4 lightPos, glm::vec4 lightDir, glm::vec4 lightColor) {
 	light temp;
 	temp.vLightPos = lightPos;
 	temp.vLightDir = lightDir;
@@ -11,7 +11,7 @@ void lightManager::initLight(glm::vec3 lightPos, glm::vec3 lightDir, glm::vec3 l
 	LIGHT_COUNT++;
 }
 
-void lightManager::initLight(glm::vec3 lightDir, glm::vec3 lightColor) {
+void lightManager::initLight(glm::vec4 lightDir, glm::vec4 lightColor) {
 	light temp;
 	temp.vLightDir = lightDir;
 	temp.vLightColor = lightColor;
@@ -21,7 +21,7 @@ void lightManager::initLight(glm::vec3 lightDir, glm::vec3 lightColor) {
 	LIGHT_COUNT++;
 }
 
-void lightManager::initLight(glm::vec3 lightPos, glm::vec3 lightDir, glm::vec3 lightColor, glm::vec3 epA, glm::vec3 epB) {
+void lightManager::initLight(glm::vec4 lightPos, glm::vec4 lightDir, glm::vec4 lightColor, glm::vec4 epA, glm::vec4 epB) {
 	light temp;
 	temp.vLightPos = lightPos;
 	temp.vLightDir = lightDir;

@@ -93,15 +93,15 @@ int main() {
 	//std::vector<Vertex> apple;
 	//buffer tesss(apple, drawFreq::dynamicDraw);
 	textureManager testure;
-	testure.loadTexture("E:/NEW_DOanload/water.jpg", "water");
+	testure.loadTexture("E:/NEW_DOanload/grtex.jpg", "water");
 	testure.bindTexture(0, 0, 1, testShader);
 	camera myCam(glm::vec3{ 0.0, 0.0, 0.0 }, glm::vec3{ 0.0, 0.0, -1.0 }, -90.0, 0.0);
 	mainCam = &myCam;
 	glm::mat4 modeltry = createGeometricToWorldMatrix(glm::vec3(20, 20, -20), glm::vec3(0, 0, 0), glm::vec3(20, 20, 20));
 	setUniform(testShader, "matModel", modeltry);
-	terrain tesst(100, 100);
+	terrain tesst(5, 5);
 	lightManager testlights;
-	testlights.initLight(glm::vec3(100, 100, 0), glm::vec3(1, 0, 0));
+	testlights.initLight(glm::vec4(100, 100, 0, 0), glm::vec4(1, 0, 0, 0));
 	testlights.turnOn(0);
 	testlights.setLights();
 	//GLint testLoc = glGetUniformLocation(testShader, "water");
@@ -147,7 +147,7 @@ int main() {
 		glBindVertexArray(testVAO);
 		glUseProgram(testShader);
 		//glDrawArrays(GL_TRIANGLES, 0, 9);
-		tesst.draw(testShader, glm::vec3(0, -5, 0), glm::vec3(10, 10, 10));
+		tesst.draw(testShader, glm::vec3(0, -5, 0), glm::vec3(1, 1, 1));
 		//drawing to the final renderquad
 		glfwSwapBuffers(window);
 		while ((err = glGetError()) != GL_NO_ERROR)
