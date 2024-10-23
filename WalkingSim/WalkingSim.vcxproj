@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\light.cpp" />
     <ClCompile Include="source\buffer.cpp" />
     <ClCompile Include="source\shader.cpp" />
     <ClCompile Include="source\camera.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="include\utils.hpp" />
     <ClInclude Include="include\shader.hpp" />
     <ClInclude Include="include\texture.hpp" />
+    <ClInclude Include="include\light.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\testFS.glsl" />

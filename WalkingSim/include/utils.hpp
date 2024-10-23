@@ -18,7 +18,7 @@ enum drawID { arrayDraw, elementDraw };
 enum drawFreq { staticDraw = GL_STATIC_DRAW, dynamicDraw = GL_DYNAMIC_DRAW };
 enum drawType { triDraw = GL_TRIANGLES, patchDraw = GL_PATCHES };
 	
-
+enum lightType { dirLight, pointLight, areaLight };
 
 struct Vertex { //THIS IS HOW I WANT EVERYTHING TO BE DEFINED!
 	glm::vec3 vPosition;
@@ -38,6 +38,8 @@ extern float deltaTime; // Time between current frame and last frame
 extern float lastFrame;
 
 extern size_t SHADER_COUNT;
+extern size_t LIGHT_COUNT;
+extern size_t UBO_COUNT;
 
 extern std::vector <GLuint> SHADERS;
 

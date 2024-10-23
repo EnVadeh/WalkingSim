@@ -1,6 +1,9 @@
 #include "utils.hpp"
 
 size_t SHADER_COUNT = 0;
+size_t LIGHT_COUNT = 0;
+size_t UBO_COUNT = 0;
+
 std::vector <GLuint> SHADERS;
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f;

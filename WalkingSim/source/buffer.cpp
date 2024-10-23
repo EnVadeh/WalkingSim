@@ -78,21 +78,21 @@ terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadt
 	std::vector<GLuint> indices;
 	for (int i = 0; i < length; ++i) {
 		for (int j = 0; j < breadth; ++j) {
-			int start = i * (breadth + 1) + j;
+			int start = i * breadth + j;
 			indices.push_back(start);
 			indices.push_back(start + 1);
-			indices.push_back(start + breadth + 1);
+			indices.push_back(start + breadth);
+
 			indices.push_back(start + 1);
-			indices.push_back(start + breadth + 2);
 			indices.push_back(start + breadth + 1);
+			indices.push_back(start + breadth);
 		}
 	}
 	tBuffer = std::make_shared<buffer>(tVertices, indices, drawFreq::staticDraw);
 }
 
 void terrain::draw(GLuint shaderID, glm::vec3 pos, glm::vec3 size) {
-	float tl = length / 2;
-	float tb = breadth / 2;
-	pos = pos - glm::vec3(tl, 0, tb);
+
 	tBuffer->draw(elementDraw, triDraw, pos, glm::vec3(0, 0, 0), size, shaderID);
 }
+

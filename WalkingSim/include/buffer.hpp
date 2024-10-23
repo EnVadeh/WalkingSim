@@ -1,13 +1,13 @@
 #pragma once
 #include "utils.hpp"
 
+//do I want to passw by reference? and template the buffer too? let's see
+
 class buffer { //I WANT TO DELETE BUFFERS AND SHIT FOR BETTER OPTIMSIATION
 private:
 	GLuint VAO;
 	GLuint VBO[bufferID::NumBuffers];
 	size_t num; 
-
-	
 
 public:
 	buffer(std::vector<Vertex> vertices, drawFreq usage);
@@ -27,3 +27,32 @@ public:
 	void draw(GLuint shaderID, glm::vec3 pos, glm::vec3 size);  //I wanna take in camera position so I can load chunks later I think.. But not in this file
 
 };
+
+template <typename T>
+class uniformBuffer {
+private:
+	GLuint UBO;
+	GLuint bindingPoint;
+public:
+	uniformBuffer(const std::vector<T>& data, drawFreq usage);
+	int returnBP();
+	void bind();
+};
+
+template <typename T>
+uniformBuffer<T>::uniformBuffer(const std::vector<T>& data, drawFreq usage) {
+	glCreateBuffers(1, &UBO);
+	glNamedBufferData(UBO, data.size() * sizeof(T), data.data(), usage);
+	bindingPoint = UBO_COUNT;
+	UBO_COUNT++;
+}
+
+template<typename T>
+int uniformBuffer<T>::returnBP() {
+	return bindingPoint;
+}
+
+template <typename T>
+void uniformBuffer<T>::bind() {
+	glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, UBO);
+}

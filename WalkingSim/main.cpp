@@ -7,6 +7,7 @@
 #include "include/shader.hpp"
 #include "include/buffer.hpp"
 #include "include/texture.hpp"
+#include "include/light.hpp"
 
 
 void GLAPIENTRY MessageCallback(GLenum source,
@@ -91,16 +92,20 @@ int main() {
 
 	//std::vector<Vertex> apple;
 	//buffer tesss(apple, drawFreq::dynamicDraw);
-	//textureManager testure;
-	//testure.loadTexture("E:/NEW_DOanload/water.jpg", "water");
-	//testure.loadTexture("E:/NEW_DOanload/heightmap.png", "heightmap");
-	//testure.bindTexture(0, 0, 2, testShader);
+	textureManager testure;
+	testure.loadTexture("E:/NEW_DOanload/water.jpg", "water");
+	testure.bindTexture(0, 0, 1, testShader);
 	camera myCam(glm::vec3{ 0.0, 0.0, 0.0 }, glm::vec3{ 0.0, 0.0, -1.0 }, -90.0, 0.0);
 	mainCam = &myCam;
 	glm::mat4 modeltry = createGeometricToWorldMatrix(glm::vec3(20, 20, -20), glm::vec3(0, 0, 0), glm::vec3(20, 20, 20));
 	setUniform(testShader, "matModel", modeltry);
-	terrain tesst(10, 10);
-
+	terrain tesst(100, 100);
+	lightManager testlights;
+	testlights.initLight(glm::vec3(100, 100, 0), glm::vec3(1, 0, 0));
+	testlights.turnOn(0);
+	testlights.setLights();
+	//GLint testLoc = glGetUniformLocation(testShader, "water");
+	//std::cout << "The location is!: " << testLoc << std::endl;
 	glfwSwapInterval(1);
 	//put these things in a fucniton so i can just call the draw frame buffers and all these things type shit
 	glEnable(GL_DEBUG_OUTPUT);
@@ -142,7 +147,7 @@ int main() {
 		glBindVertexArray(testVAO);
 		glUseProgram(testShader);
 		//glDrawArrays(GL_TRIANGLES, 0, 9);
-		tesst.draw(testShader, glm::vec3(0, 0, 0), glm::vec3(20, 20, 20));
+		tesst.draw(testShader, glm::vec3(0, -5, 0), glm::vec3(10, 10, 10));
 		//drawing to the final renderquad
 		glfwSwapBuffers(window);
 		while ((err = glGetError()) != GL_NO_ERROR)
