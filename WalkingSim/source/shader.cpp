@@ -3,7 +3,7 @@
 std::string shader::readFile(const std::string& filepath){
 	std::ifstream file(filepath);
 	if (!file.is_open()) {
-		throw std::runtime_error("Failed to open shader file: " + filepath);
+		std::cout << "Shader file " << filepath << " cannot be opened!" << std::endl;
 	}
 
 	return std::string(
