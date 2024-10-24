@@ -73,5 +73,11 @@
     <None Include="shaders\testFS.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\renderQuadVS.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\renderQuadFS.glsl">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

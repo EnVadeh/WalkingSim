@@ -8,6 +8,7 @@
 #include <glm/ext.hpp>
 #include <iostream>
 #include <memory>
+#include "camera.hpp"
 
 //enum VAO_IDs { Triangles, NumVAOs };
 enum bufferID { ArrayBuffer, ElementBuffer, NumBuffers };
@@ -36,6 +37,7 @@ static const std::string renderTextures[3] = {
 
 extern float deltaTime; // Time between current frame and last frame
 extern float lastFrame;
+
 
 extern size_t SHADER_COUNT;
 extern size_t LIGHT_COUNT;

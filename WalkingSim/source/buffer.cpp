@@ -61,6 +61,75 @@ void buffer::draw(drawID dI, drawType dT, glm::vec3 pos, glm::vec3 rotation,  gl
 	
 }
 
+frameBuffer::frameBuffer() {
+	glCreateFramebuffers(1, &FBO);
+	std::cout << "The consturcotr is being called!";
+	RT.resize(3);
+	glCreateTextures(GL_TEXTURE_2D, 3, RT.data());
+	for (size_t i = 0; i < 3; i++) {
+		glTextureStorage2D(RT[i], 1, GL_RGB8, 2048, 2048);
+		
+		glTextureParameteri(RT[i], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(RT[i], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(RT[i], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(RT[i], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	
+		glNamedFramebufferTexture(FBO, GL_COLOR_ATTACHMENT0 + i, RT[i], 0);
+	}
+	setupRenderBuffer();
+	glNamedFramebufferDrawBuffers(FBO, 3, drawBuffers);
+}
+
+frameBuffer::frameBuffer(bool depthOnly) : depthOnly(depthOnly) {
+	glCreateFramebuffers(1, &FBO);
+
+	glCreateTextures(GL_TEXTURE_2D, 1, &shadowRT);
+
+	glTextureStorage2D(shadowRT, 1, GL_DEPTH_COMPONENT, 2048, 2048);
+	
+	glTextureParameteri(shadowRT, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(shadowRT, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(shadowRT, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTextureParameteri(shadowRT, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glNamedFramebufferTexture(FBO, GL_DEPTH_ATTACHMENT, shadowRT, 0);
+
+	glNamedFramebufferDrawBuffer(FBO, GL_NONE);
+}
+
+void frameBuffer::setupRenderBuffer() {
+	glCreateRenderbuffers(1, &RBO);
+	glNamedRenderbufferStorage(RBO, GL_DEPTH_STENCIL, 2048, 2048);
+	glNamedFramebufferRenderbuffer(FBO, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+
+}
+void frameBuffer::bind() {
+	glViewport(0, 0, 2048, 2048);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+	if (!depthOnly)
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	else
+		glClear(GL_DEPTH_BUFFER_BIT);
+}
+
+void frameBuffer::sample(GLuint shaderID, GLint base_unit) {
+	if (depthOnly) {
+		glBindTextureUnit(base_unit, shadowRT);
+		setUniform(shaderID, "shadowRT", base_unit);
+	}
+	else {
+		std::vector<std::string> texNames;
+		texNames.push_back("colorRT");
+		texNames.push_back("normalRT");
+		texNames.push_back("depthRT");
+		for (int i = 0; i < 3; i++) {
+			glBindTextureUnit(base_unit + i, RT[i]);
+			setUniform(shaderID, texNames[i], base_unit + i);
+		}
+	}
+
+}
+
 terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadth) { 
 	std::vector<Vertex> tVertices;
 	for(size_t i = 0; i < length; ++i)
@@ -96,3 +165,24 @@ void terrain::draw(GLuint shaderID, glm::vec3 pos, glm::vec3 size) {
 	tBuffer->draw(elementDraw, triDraw, pos, glm::vec3(0, 0, 0), size, shaderID);
 }
 
+screenQuad::screenQuad(size_t length, size_t breadth) : length(length), breadth(breadth) {
+	std::vector<Vertex> quadVertices = {
+		// Positions					// Texture Coords		// Normals (0, 0, 0)
+		{ glm::vec3(-1.0f,  1.0f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f) },
+		{ glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f) },
+		{ glm::vec3(1.0f, -1.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f) },
+
+		{ glm::vec3(-1.0f,  1.0f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f) },
+		{ glm::vec3(1.0f, -1.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f) },
+		{ glm::vec3(1.0f,  1.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f) }
+	};
+
+	qBuffer = std::make_shared<buffer>(quadVertices, drawFreq::staticDraw);
+}
+
+void screenQuad::draw(GLuint shaderID) {
+	glViewport(0, 0, length, breadth);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	qBuffer->draw(arrayDraw, triDraw, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), shaderID);
+}

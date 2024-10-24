@@ -16,11 +16,12 @@ in vec2 fTex;
 
 uniform sampler2D water;
 
-out vec4 outColor;
+layout (location = 0) out vec3 outColor;
 
 void main(){
 	//outColor = vec4(1, 1, 1,1);
 	//outColor = texture2D(water, fTex);
-	outColor = lights[0].vLightColor;
+	//outColor = vec3(lights[0].vLightColor);
+	outColor = vec3(1, 1, 1);
 	//outColor = vec4(fTex, 0, 1);
 }
