@@ -18,6 +18,8 @@ struct tessShaderSource {
 
 class shader { //SHADSERS WONT BE AFFECTED MUCH BY DSA OR NOT
 private:
+	static std::string readFile(const std::string& filepath);
+
 	simpleShaderSource simpleShader; //need better name
 	tessShaderSource tessShader;
 	bool tess;

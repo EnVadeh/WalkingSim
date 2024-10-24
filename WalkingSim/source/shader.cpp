@@ -1,54 +1,31 @@
 #include "shader.hpp"
 
-shader::shader(const std::string& filepath1, const std::string& filepath2) {
-	tess = false;
-
-	std::ifstream shaderFile1(filepath1);
-	std::string line1;
-	while (std::getline(shaderFile1, line1)) {
-		simpleShader.vertexSource += line1 + '\n';
+std::string shader::readFile(const std::string& filepath){
+	std::ifstream file(filepath);
+	if (!file.is_open()) {
+		throw std::runtime_error("Failed to open shader file: " + filepath);
 	}
-	shaderFile1.close();
 
-	std::ifstream shaderFile2(filepath2);
-	std::string line2;
-	while (std::getline(shaderFile2, line2)) {
-		simpleShader.fragmentSource += line2 + '\n';
-	}
-	shaderFile2.close();
+	return std::string(
+		std::istreambuf_iterator<char>(file),  //points to start of string buffer
+		std::istreambuf_iterator<char>()	   //points to end of string buffer
+	);
+}
+
+shader::shader(const std::string& filepath1, const std::string& filepath2) : tess(false) {
+
+	simpleShader.vertexSource = readFile(filepath1);
+	simpleShader.fragmentSource = readFile(filepath2);
 
 }
 
-shader::shader(const std::string& filepath1, const std::string& filepath2, const std::string& filepath3, const std::string& filepath4) {
-	tess = true;
+shader::shader(const std::string& filepath1, const std::string& filepath2, const std::string& filepath3, const std::string& filepath4) : tess(true) {
 
-	std::ifstream shaderFile1(filepath1);
-	std::string line1;
-	while (std::getline(shaderFile1, line1)) {
-		tessShader.vertexSource += line1 + '\n';
-	}
-	shaderFile1.close();
+	tessShader.vertexSource = readFile(filepath1);
+	tessShader.tcSource = readFile(filepath2);
+	tessShader.teSource = readFile(filepath3);
+	tessShader.fragmentSource = readFile(filepath4);
 
-	std::ifstream shaderFile2(filepath2);
-	std::string line2;
-	while (std::getline(shaderFile2, line2)) {
-		tessShader.tcSource += line2 + '\n';
-	}
-	shaderFile2.close();
-
-	std::ifstream shaderFile3(filepath3);
-	std::string line3;
-	while (std::getline(shaderFile3, line3)) {
-		tessShader.teSource += line3 + '\n';
-	}
-	shaderFile3.close();
-
-	std::ifstream shaderFile4(filepath4);
-	std::string line4;
-	while (std::getline(shaderFile4, line4)) {
-		tessShader.fragmentSource += line4 + '\n';
-	}
-	shaderFile4.close();
 
 }
 
