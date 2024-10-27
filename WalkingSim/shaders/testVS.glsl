@@ -10,6 +10,6 @@ uniform mat4 matModel;
 out vec2 fTex;
 
 void main(){
-	gl_Position = matProjView * matModel * vec4(pos, 1.0);
+	gl_Position = matProjView * matModel*  vec4(pos, 1.0);
 	fTex = tex;
 }

@@ -29,9 +29,9 @@ void setUniform(GLuint shaderID, std::string name, int val)
 {
 	const char* uniformNameptr = &name[0];
 	GLint Loc = glGetUniformLocation(shaderID, uniformNameptr);
-	if (Loc == -1)
-		std::cout << "Uniform " << name << " cannot be found!" << std::endl;
-	else
+	//if (Loc == -1)
+	//	std::cout << "Uniform " << name << " cannot be found!" << std::endl;
+	//else
 		glProgramUniform1i(shaderID, Loc, val);
 }
 void setUniform(GLuint shaderID, std::string name, float val)
@@ -73,8 +73,8 @@ void setUniform(GLuint shaderID, std::string name, glm::mat3 val)
 void setUniform(GLuint shaderID, std::string name, glm::mat4 val) {
 	const char* uniformNameptr = &name[0];
 	GLint Loc = glGetUniformLocation(shaderID, uniformNameptr);
-	if (Loc == -1)
-		std::cout << "Uniform " << name << " cannot be found!" << std::endl;
-	else
+	//if (Loc == -1)
+	//	std::cout << "Uniform " << name << " cannot be found!" << std::endl;
+	//else
 		glProgramUniformMatrix4fv(shaderID, Loc, 1, GL_FALSE, glm::value_ptr(val));
 }

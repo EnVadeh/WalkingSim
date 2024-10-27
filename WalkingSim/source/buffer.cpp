@@ -48,6 +48,14 @@ void buffer::draw(drawID dI, drawType dT, glm::vec3 pos, glm::vec3 rotation,  gl
 	glBindVertexArray(VAO);
 	glUseProgram(shaderID);
 	glm::mat4 matModel = createGeometricToWorldMatrix(pos, rotation, size);
+	//std::cout << "THis is the model matrix: " << std::endl;
+	//for (int i = 0; i < 4; ++i) {
+	//	for (int j = 0; j < 4; ++j) {
+	//		std::cout << matModel[i][j] << " ";
+	//	}
+	//	std::cout << std::endl;
+	//}
+	
 	setUniform(shaderID, "matModel", matModel);
 	glPatchParameteri(GL_PATCH_VERTICES, 4);
 	switch(dI) {
@@ -132,36 +140,44 @@ void frameBuffer::sample(GLuint shaderID, GLint base_unit) {
 
 terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadth) { 
 	std::vector<Vertex> tVertices;
-	for(size_t i = 0; i < length; ++i)
-		for (size_t j = 0; j < breadth; ++j) {
-			Vertex temp;
-			temp.vPosition = glm::vec3(i, 0, j);
-			temp.vNormal = glm::vec3(0, 1, 0); //cause it's flat
-			temp.vTex = glm::vec2(float(i) / (length - 1), float(j) / (breadth - 1));
-			tVertices.emplace_back(temp);
-			//std::cout << "vertices generated are: (" << temp.vPosition.x << ", " << temp.vPosition.y << ", " << temp.vPosition.z << ")" << std::endl;
-			//std::cout << "normals generated are: (" << temp.vNormal.x << ", " << temp.vNormal.y << ", " << temp.vNormal.z << ")" << std::endl;
-			//std::cout << "texcoord generated are: (" << temp.vTex.x << ", " << temp.vTex.y <<")" << std::endl;
-		}
+	//for(size_t i = 0; i < length; ++i)
+	//	for (size_t j = 0; j < breadth; ++j) {
+	//		Vertex temp;
+	//		temp.vPosition = glm::vec3(i, 0, j);	
+	//		temp.vNormal = glm::vec3(0, 1, 0); //cause it's flat
+	//		temp.vTex = glm::vec2(float(i) / (length - 1), float(j) / (breadth - 1));
+	//		tVertices.emplace_back(temp);
+	//		std::cout << "vertices generated are: (" << temp.vPosition.x << ", " << temp.vPosition.y << ", " << temp.vPosition.z << ")" << std::endl;
+	//		std::cout << "normals generated are: (" << temp.vNormal.x << ", " << temp.vNormal.y << ", " << temp.vNormal.z << ")" << std::endl;
+	//		std::cout << "texcoord generated are: (" << temp.vTex.x << ", " << temp.vTex.y <<")" << std::endl;
+	//	}
+	tVertices = {
+		{ glm::vec3(0.0f,  0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f) },
+		{ glm::vec3(length, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f) },
+		{ glm::vec3(0.0f, 0.0f, breadth), glm::vec2(0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f) },
+		{ glm::vec3(length, 0.0f, breadth), glm::vec2(1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f) }
 
-	std::vector<GLuint> indices;
-	for (int i = 0; i < length; ++i) {
-		for (int j = 0; j < breadth; ++j) {
-			int start = i * breadth + j;
-			indices.push_back(start);
-			indices.push_back(start + 1);
-			indices.push_back(start + breadth);
-
-			indices.push_back(start + 1);
-			indices.push_back(start + breadth + 1);
-			indices.push_back(start + breadth);
-		}
-	}
+	};
+	std::vector<GLuint> indices = {
+		0, 1, 2,
+		1, 2, 3
+	};
+	//for (int i = 0; i < length - 1; i++) {
+	//	for (int j = 0; j < breadth - 1; j++) {
+	//		int i0 = j + i * breadth;
+	//		int i1 = j + 1 + i * breadth;
+	//		int i2 = j + (i + 1) * breadth;
+	//		int i3 = j + 1 + (i + 1) * breadth;
+	//		indices.push_back(i0);
+	//		indices.push_back(i2);
+	//		indices.push_back(i3);
+	//		indices.push_back(i1);
+	//	}
+	//}
 	tBuffer = std::make_shared<buffer>(tVertices, indices, drawFreq::staticDraw);
 }
 
 void terrain::draw(GLuint shaderID, glm::vec3 pos, glm::vec3 size) {
-
 	tBuffer->draw(elementDraw, triDraw, pos, glm::vec3(0, 0, 0), size, shaderID);
 }
 

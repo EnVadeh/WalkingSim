@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\chunkmanager.cpp" />
     <ClCompile Include="source\light.cpp" />
     <ClCompile Include="source\buffer.cpp" />
     <ClCompile Include="source\shader.cpp" />
@@ -143,6 +144,7 @@
     <ClCompile Include="source\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\chunkmanager.hpp" />
     <ClInclude Include="include\buffer.hpp" />
     <ClInclude Include="include\camera.hpp" />
     <ClInclude Include="include\stb_image.h" />

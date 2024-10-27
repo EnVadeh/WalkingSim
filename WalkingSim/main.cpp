@@ -8,6 +8,7 @@
 #include "include/buffer.hpp"
 #include "include/texture.hpp"
 #include "include/light.hpp"
+#include "include/chunkmanager.hpp"
 
 
 void GLAPIENTRY MessageCallback(GLenum source,
@@ -57,8 +58,10 @@ int main() {
 	if (!glfwInit()) {
 		return -1;
 	}
+
 	glfwWindowHint(GLFW_DEPTH_BITS, 24);
 	GLFWwindow* window = glfwCreateWindow(1000, 1000, "Window", NULL, NULL);
+	
 	if (!window) {
 		glfwTerminate();
 		return -1;
@@ -71,17 +74,16 @@ int main() {
 	
 	shader test("shaders/testVS.glsl", "shaders/testFS.glsl");
 	GLuint testShader = test.createShader();
+	
 	shader RQ("shaders/renderQuadVS.glsl", "shaders/renderQuadFS.glsl");
 	GLuint renderProgram = RQ.createShader();
 	
 	textureManager testure;
 	testure.loadTexture("E:/NEW_DOanload/grtex.jpg", "water");
 	testure.bindTexture(0, 0, 1, testShader);
-	camera myCam(glm::vec3{ 0.0, 0.0, 5.0 }, glm::vec3{ 0.0, -1.0, 0.0 }, 0.0, 0.0);
+	camera myCam(glm::vec3{ 0.0, 0.0, 5.0 }, glm::vec3{ 0.0, 0.0, -1.0 }, -90.0, 0.0);
 	mainCam = &myCam;
-	glm::mat4 modeltry = createGeometricToWorldMatrix(glm::vec3(20, 20, -20), glm::vec3(0, 0, 0), glm::vec3(20, 20, 20));
-	setUniform(testShader, "matModel", modeltry);
-	terrain tesst(5, 5);
+	terrain tesst(100, 100);
 	lightManager testlights;
 	testlights.initLight(glm::vec4(100, 100, 0, 0), glm::vec4(1, 0, 0, 0));
 	testlights.turnOn(0);
@@ -89,6 +91,8 @@ int main() {
 
 	frameBuffer firstpass;
 	screenQuad screen(1000, 1000);
+
+	chunkManager cM(myCam);
 	//GLint testLoc = glGetUniformLocation(testShader, "water");
 	//std::cout << "The location is!: " << testLoc << std::endl;
 	glfwSwapInterval(1);
@@ -97,9 +101,11 @@ int main() {
 	while (!glfwWindowShouldClose(window)) {
 		GLenum err;
 		updateDeltaTime();
-		//glfwSetKeyCallback(window, keyCallback);
-		//glfwSetCursorPosCallback(window, mouseCallback);
-		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetKeyCallback(window, keyCallback);
+		glfwSetCursorPosCallback(window, mouseCallback);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		cM.checkPos();
+		//cM.checkk();
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		glDepthMask(GL_TRUE);
@@ -116,20 +122,20 @@ int main() {
 		glStencilMask(0xFF);
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); 
-		firstpass.bind();
-		tesst.draw(testShader, glm::vec3(0, -2, 0), glm::vec3(2, 2, 2));
+		//tesst.draw(testShader, glm::vec3(0, -1, 0), glm::vec3(1, 1, 1));
 		//drawing to the stencil buffer
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		glDepthMask(GL_TRUE);
-		firstpass.bind();
 		glStencilFunc(GL_EQUAL, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 		//drawing stuff to the frame buffer
 		glDisable(GL_STENCIL_TEST);
-		tesst.draw(testShader, glm::vec3(0, -2, 0), glm::vec3(2, 2, 2));
+		firstpass.bind();
+		//glBindVertexArray(testVAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 9);
 		glDisable(GL_CULL_FACE);
+		tesst.draw(testShader, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
 		glDisable(GL_DEPTH_TEST);
-		//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		firstpass.sample(renderProgram, 0);
 		screen.draw(renderProgram);
 		//drawing to the final renderquad

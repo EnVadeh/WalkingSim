@@ -8,6 +8,9 @@ camera::camera(glm::vec3 initPos, glm::vec3 initDir, GLfloat yaw, GLfloat pitch)
 
 void camera::setCam() {
 	matProjView = matProj * matView;
+	//std::cout << "The position is: (" << vEye.x << "," << vEye.y << ","<< vEye.z << ")" << std::endl;
+	//std::cout << "The front is: (" << vFront.x << "," << vFront.y << ","<< vFront.z << ")" << std::endl;
+	//std::cout << "The up is: (" << vUp.x << "," << vUp.y << ","<< vUp.z << ")" << std::endl;
 	for (size_t i = 0; i < SHADER_COUNT; i++)
 		setUniform(SHADERS[i], "matProjView", matProjView);
 }
