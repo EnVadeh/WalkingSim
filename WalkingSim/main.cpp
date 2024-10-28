@@ -85,7 +85,7 @@ int main() {
 	mainCam = &myCam;
 	//terrain tesst(10, 10);
 	lightManager testlights;
-	testlights.initLight(glm::vec4(100, 100, 0, 0), glm::vec4(1, 0, 0, 0));
+	testlights.initLight(glm::vec4(0.7071, 0.7071, 0, 0), glm::vec4(1, 0, 0, 0));
 	testlights.turnOn(0);
 	testlights.setLights();
 

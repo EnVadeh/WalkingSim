@@ -152,10 +152,10 @@ terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadt
 	//		std::cout << "texcoord generated are: (" << temp.vTex.x << ", " << temp.vTex.y <<")" << std::endl;
 	//	}
 	tVertices = {
-		{ glm::vec3(0.0f,  0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f) },
-		{ glm::vec3(length, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f) },
-		{ glm::vec3(0.0f, 0.0f, breadth), glm::vec2(0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f) },
-		{ glm::vec3(length, 0.0f, breadth), glm::vec2(1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f) }
+		{ glm::vec3(0.0f,  0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f) },
+		{ glm::vec3(length, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f) },
+		{ glm::vec3(0.0f, 0.0f, breadth), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f) },
+		{ glm::vec3(length, 0.0f, breadth), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f) }
 
 	};
 	std::vector<GLuint> indices = {

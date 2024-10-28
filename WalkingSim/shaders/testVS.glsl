@@ -8,8 +8,12 @@ uniform mat4 matProjView;
 uniform mat4 matModel;
 
 out vec2 fTex;
+out vec3 fNorm;
+out vec3 vPos;
 
 void main(){
 	gl_Position = matProjView * matModel*  vec4(pos, 1.0);
 	fTex = tex;
+	fNorm = norm;
+	vPos = vec3(matModel * vec4(pos, 1.0));
 }
