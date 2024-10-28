@@ -83,7 +83,7 @@ int main() {
 	testure.bindTexture(0, 0, 1, testShader);
 	camera myCam(glm::vec3{ 0.0, 0.0, 5.0 }, glm::vec3{ 0.0, 0.0, -1.0 }, -90.0, 0.0);
 	mainCam = &myCam;
-	terrain tesst(100, 100);
+	//terrain tesst(10, 10);
 	lightManager testlights;
 	testlights.initLight(glm::vec4(100, 100, 0, 0), glm::vec4(1, 0, 0, 0));
 	testlights.turnOn(0);
@@ -93,8 +93,7 @@ int main() {
 	screenQuad screen(1000, 1000);
 
 	chunkManager cM(myCam);
-	//GLint testLoc = glGetUniformLocation(testShader, "water");
-	//std::cout << "The location is!: " << testLoc << std::endl;
+
 	glfwSwapInterval(1);
 	//put these things in a fucniton so i can just call the draw frame buffers and all these things type shit
 	glEnable(GL_DEBUG_OUTPUT);
@@ -104,8 +103,6 @@ int main() {
 		glfwSetKeyCallback(window, keyCallback);
 		glfwSetCursorPosCallback(window, mouseCallback);
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		cM.checkPos();
-		//cM.checkk();
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		glDepthMask(GL_TRUE);
@@ -131,10 +128,9 @@ int main() {
 		//drawing stuff to the frame buffer
 		glDisable(GL_STENCIL_TEST);
 		firstpass.bind();
-		//glBindVertexArray(testVAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 9);
 		glDisable(GL_CULL_FACE);
-		tesst.draw(testShader, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+		cM.checkPos(testShader);
+		//tesst.draw(testShader, glm::vec3(0, -1.0, 0), glm::vec3(1, 1, 1));
 		glDisable(GL_DEPTH_TEST);
 		firstpass.sample(renderProgram, 0);
 		screen.draw(renderProgram);

@@ -2,52 +2,23 @@
 
 chunkManager::chunkManager(camera& cam) {
 	cCam = &cam;
-	chunks.resize(9);
-
-	//chunk = std::make_shared<terrain>(10, 10);
+	chunk = std::make_shared<terrain>(10, 10);
 }
 
-void chunkManager::checkPos() { //Entire position thing is fucked man
+void chunkManager::checkPos(GLuint shaderID) { //Entire position thing is fucked man
 	vPos[0] = cCam->vEye.x / 10;
 	vPos[1] = cCam->vEye.z / 10;
 
-	glm::vec2 temp;
-
-	temp.x = vPos[0] - 1;
-	temp.y = vPos[1] - 1;
+	glm::vec3 temp = { vPos[0], 0, vPos[1]};
+	chunks.clear();
 	chunks.push_back(temp);
-	temp.x = vPos[0];
-	temp.y = vPos[1] - 1;
-	chunks.push_back(temp);
-	temp.x = vPos[0] + 1;
-	temp.y = vPos[1] - 1;
-
-	chunks.push_back(temp);
-	temp.x = vPos[0] - 1;
-	temp.y = vPos[1];
-	chunks.push_back(temp);
-	temp.x = vPos[0];
-	temp.y = vPos[1];
-	chunks.push_back(temp);
-	temp.x = vPos[0] + 1;
-	temp.y = vPos[1];
-	chunks.push_back(temp);
-	temp.x = vPos[0] - 1;
-	temp.y = vPos[1] + 1;
-	chunks.push_back(temp);
-	temp.x = vPos[0];
-	temp.y = vPos[1] + 1;
-	chunks.push_back(temp);
-	temp.x = vPos[0] + 1;
-	temp.y = vPos[1] + 1;
-	chunks.push_back(temp);
-
-	//::cout << "Position is from object directly : ( " << cCam->vEye.x << " , " << cCam->vEye.z << " )" << std::endl;
-	//std::cout << "Position is: ( " << vPos[0] << " , " << vPos[1] << " )" << std::endl;
-	//for (size_t i = 0; i < 9; i++)
-	//	std::cout << "The positions are: " << chunks[i].x << " , " << chunks[i].y << std::endl;
-	
+	draw(shaderID);
 }
 
-void chunkManager::checkk() {
+void chunkManager::draw(GLuint shaderID) {
+	glm::vec3 tempV;
+	tempV.x = chunks[0].x * 10;
+	tempV.y = 0;
+	tempV.z = chunks[0].z * 10;
+	chunk->draw(shaderID, tempV, glm::vec3(1, 1, 1));
 }
