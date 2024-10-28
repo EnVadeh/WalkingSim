@@ -5,20 +5,43 @@ chunkManager::chunkManager(camera& cam) {
 	chunk = std::make_shared<terrain>(10, 10);
 }
 
-void chunkManager::checkPos(GLuint shaderID) { //Entire position thing is fucked man
+void chunkManager::checkPos(GLuint shaderID) {
+
 	vPos[0] = cCam->vEye.x / 10;
 	vPos[1] = cCam->vEye.z / 10;
 
 	glm::vec3 temp = { vPos[0], 0, vPos[1]};
+	 
+	negative_x = false;
+	negative_z = false;
+	
+	if (cCam->vEye.x < 0)
+		negative_x = true;
+	if (cCam->vEye.z < 0)
+		negative_z = true;
+
 	chunks.clear();
 	chunks.push_back(temp);
+	std::cout << "The position of the shiesse is: " << cCam->vEye.x << ", " << cCam->vEye.z << std::endl;
 	draw(shaderID);
 }
 
 void chunkManager::draw(GLuint shaderID) {
 	glm::vec3 tempV;
-	tempV.x = chunks[0].x * 10;
+	tempV.x = chunks[0].x;
+	tempV.z = chunks[0].z;
+
+	if (negative_x == true)
+		tempV.x = tempV.x - 1;
+
+	if (negative_z == true) 
+		tempV.z = tempV.z - 1;
+	
+	tempV.x = tempV.x * 10;
 	tempV.y = 0;
-	tempV.z = chunks[0].z * 10;
+	tempV.z = tempV.z * 10;
+
+	std::cout << "iss it negative? " << negative_x << std::endl;
+	std::cout << "The value should be: " << tempV.x << ", " << tempV.z << std::endl;
 	chunk->draw(shaderID, tempV, glm::vec3(1, 1, 1));
 }
