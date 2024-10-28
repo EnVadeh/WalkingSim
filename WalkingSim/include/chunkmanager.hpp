@@ -12,6 +12,8 @@ private:
 	camera* cCam = nullptr;
 	bool negative_x = false;
 	bool negative_z = false;
+	GLint length = 10;
+	GLint breadth = 10;
 public:
 	chunkManager(camera &cam);
 	void checkPos(GLuint shaderID);

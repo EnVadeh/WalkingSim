@@ -2,13 +2,13 @@
 
 chunkManager::chunkManager(camera& cam) {
 	cCam = &cam;
-	chunk = std::make_shared<terrain>(10, 10);
+	chunk = std::make_shared<terrain>(length, breadth);
 }
 
 void chunkManager::checkPos(GLuint shaderID) {
 
-	vPos[0] = cCam->vEye.x / 10;
-	vPos[1] = cCam->vEye.z / 10;
+	vPos[0] = cCam->vEye.x / length;
+	vPos[1] = cCam->vEye.z / breadth;
 
 	glm::vec3 temp = { vPos[0], 0, vPos[1]};
 	 
@@ -37,9 +37,9 @@ void chunkManager::draw(GLuint shaderID) {
 	if (negative_z == true) 
 		tempV.z = tempV.z - 1;
 	
-	tempV.x = tempV.x * 10;
+	tempV.x = tempV.x * length;
 	tempV.y = 0;
-	tempV.z = tempV.z * 10;
+	tempV.z = tempV.z * breadth;
 
 	std::cout << "iss it negative? " << negative_x << std::endl;
 	std::cout << "The value should be: " << tempV.x << ", " << tempV.z << std::endl;
