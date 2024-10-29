@@ -77,11 +77,16 @@ int main() {
 	
 	shader RQ("shaders/renderQuadVS.glsl", "shaders/renderQuadFS.glsl");
 	GLuint renderProgram = RQ.createShader();
+
 	
 	textureManager testure;
 	testure.loadTexture("E:/NEW_DOanload/grtex.jpg", "water");
-	testure.bindTexture(0, 0, 1, testShader);
-	camera myCam(glm::vec3{ 0.0, 0.0, 5.0 }, glm::vec3{ 0.0, 0.0, -1.0 }, -90.0, 0.0);
+	
+	textureManager noise;
+	noise.loadTexture("E:/NEW_DOanload/WhiteNoiseDithering.png", "noise");
+	noise.bindTexture(0, 0, 1, testShader);
+
+	camera myCam(glm::vec3{ 0.0, 1.0, 5.0 }, glm::vec3{ 0.0, 0.0, -1.0 }, -90.0, 0.0);
 	mainCam = &myCam;
 	//terrain tesst(10, 10);
 	lightManager testlights;
@@ -129,6 +134,8 @@ int main() {
 		glDisable(GL_STENCIL_TEST);
 		firstpass.bind();
 		glDisable(GL_CULL_FACE);
+
+		noise.bindTexture(0, 0, 1, testShader);
 		cM.checkPos(testShader);
 		//tesst.draw(testShader, glm::vec3(0, -1.0, 0), glm::vec3(1, 1, 1));
 		glDisable(GL_DEPTH_TEST);

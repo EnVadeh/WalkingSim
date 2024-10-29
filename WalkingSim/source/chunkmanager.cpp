@@ -41,7 +41,15 @@ void chunkManager::draw(GLuint shaderID) {
 	tempV.y = 0;
 	tempV.z = tempV.z * breadth;
 
-	std::cout << "iss it negative? " << negative_x << std::endl;
-	std::cout << "The value should be: " << tempV.x << ", " << tempV.z << std::endl;
-	chunk->draw(shaderID, tempV, glm::vec3(1, 1, 1));
+	glm::vec3 original;
+	original = tempV;
+
+	for (int i = 0; i < 3; i++) {
+		tempV.z = (i - 1) * breadth + original.z;
+		for (int j = 0; j < 3; j++) {
+			tempV.x = (j - 1) * length + original.x;
+			chunk->draw(shaderID, tempV, glm::vec3(1, 1, 1));
+		}
+	}
+
 }

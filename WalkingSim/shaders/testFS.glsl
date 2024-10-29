@@ -1,6 +1,7 @@
 #version 430 core
 
 const float PI = 3.14159265359;
+const float QUANTIZE = 255; //Number of non black colors
 
 struct Light{
 	vec4 vLightPos; 
@@ -18,10 +19,17 @@ in vec2 fTex;
 in vec3 fNorm;
 in vec3 vPos;
 
-uniform sampler2D water;
+uniform sampler2D noise;
 uniform vec3 vCamPos;
 
 layout (location = 0) out vec3 outColor;
+
+float remap_tri(float v)
+{
+    float orig = v * 2.0 - 1.0;
+    v = max(-1.0, orig / sqrt(abs(orig)));
+    return v - sign(orig) + 0.5;
+}
 
 float distribution(float iso, float roughness){
 	float a = roughness * roughness;
@@ -59,6 +67,8 @@ void main(){
 	vec3 lightDir = normalize(vec3(lights[0].vLightDir));
 	vec3 camDir = normalize(vCamPos-vPos);
 	float fAmbient = 0.3;
+	vec2 uvNoise = fTex * (vec2(1000) / vec2(textureSize(noise, 0)));
+	vec3 dither = vec3(texture2D(noise, uvNoise));
 	vec3 color = vec3(1.0);
 	vec3 albedoAmbient = color * fAmbient;
 	float reflectance = 1;
@@ -88,8 +98,8 @@ void main(){
 
 	float NdotL = max(dot(N, lightDir), 0.0);
 	vec3 Lo = (kD * color/ PI + specular) * NdotL * radiance;
+	Lo += remap_tri(dither.r)/255;
 	Lo = clamp(Lo, 0.0, 1.0);
-	
 	outColor = Lo;
 	//outColor = vec4(fTex, 0, 1);
 }
