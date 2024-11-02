@@ -78,6 +78,8 @@ int main() {
 	shader RQ("shaders/renderQuadVS.glsl", "shaders/renderQuadFS.glsl");
 	GLuint renderProgram = RQ.createShader();
 
+	shader SS("shaders/skyBoxVS.glsl", "shaders/skyBoxFS.glsl");
+	GLuint skyProgram = SS.createShader();
 	
 	textureManager testure;
 	testure.loadTexture("E:/NEW_DOanload/grtex.jpg", "water");
@@ -98,6 +100,7 @@ int main() {
 	screenQuad screen(1000, 1000);
 
 	chunkManager cM(myCam);
+	skyBox mSky;
 
 	glfwSwapInterval(1);
 	//put these things in a fucniton so i can just call the draw frame buffers and all these things type shit
@@ -137,6 +140,8 @@ int main() {
 
 		noise.bindTexture(0, 0, 1, testShader);
 		cM.checkPos(testShader);
+		glDepthFunc(GL_LEQUAL);
+		mSky.draw(skyProgram);
 		//tesst.draw(testShader, glm::vec3(0, -1.0, 0), glm::vec3(1, 1, 1));
 		glDisable(GL_DEPTH_TEST);
 		firstpass.sample(renderProgram, 0);

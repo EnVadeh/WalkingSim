@@ -72,6 +72,15 @@ public:
 	void draw(GLuint shaderID, glm::vec3 pos, glm::vec3 size);  //I wanna take in camera position so I can load chunks later I think.. But not in this file
 };
 
+class skyBox {
+private:
+	std::shared_ptr<buffer> sBuffer;
+public:
+	skyBox();
+	void draw(GLuint shaderID);
+};
+
+
 class screenQuad {
 private:
 	std::shared_ptr<buffer> qBuffer;
@@ -81,3 +90,4 @@ public:
 	screenQuad(size_t length, size_t breadth);
 	void draw(GLuint shaderID);
 };
+

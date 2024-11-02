@@ -22,7 +22,6 @@ void chunkManager::checkPos(GLuint shaderID) {
 
 	chunks.clear();
 	chunks.push_back(temp);
-	std::cout << "The position of the shiesse is: " << cCam->vEye.x << ", " << cCam->vEye.z << std::endl;
 	draw(shaderID);
 }
 

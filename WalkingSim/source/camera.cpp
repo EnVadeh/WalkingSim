@@ -14,6 +14,8 @@ void camera::setCam() {
 	//std::cout << "The up is: (" << vUp.x << "," << vUp.y << ","<< vUp.z << ")" << std::endl;
 	for (size_t i = 0; i < SHADER_COUNT; i++) {
 		setUniform(SHADERS[i], "matProjView", matProjView);
+		setUniform(SHADERS[i], "matProj", matProj);
+		setUniform(SHADERS[i], "matView", matView);
 		setUniform(SHADERS[i], "vCamPos", vEye);
 	}
 }

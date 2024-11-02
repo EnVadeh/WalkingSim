@@ -26,7 +26,6 @@ shader::shader(const std::string& filepath1, const std::string& filepath2, const
 	tessShader.teSource = readFile(filepath3);
 	tessShader.fragmentSource = readFile(filepath4);
 
-
 }
 
 GLuint shader::compileShader(GLuint shaderType, const std::string& shaderSource) {
