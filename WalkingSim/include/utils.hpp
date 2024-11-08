@@ -10,6 +10,8 @@
 #include <memory>
 #include "camera.hpp"
 
+#define M_PI 3.14159265358979323846
+
 //enum VAO_IDs { Triangles, NumVAOs };
 enum bufferID { ArrayBuffer, ElementBuffer, NumBuffers };
 enum attribID { vPos, vTex, vNormal, vTangent, vBiTangent };
@@ -18,7 +20,6 @@ enum ssBufferSize { VertexSSBO = 16000000, floatSSBO = 4000000, vec3SSBO = 12000
 enum drawID { arrayDraw, elementDraw };
 enum drawFreq { staticDraw = GL_STATIC_DRAW, dynamicDraw = GL_DYNAMIC_DRAW };
 enum drawType { triDraw = GL_TRIANGLES, patchDraw = GL_PATCHES };
-	
 enum lightType { dirLight, pointLight, areaLight };
 
 struct Vertex { //THIS IS HOW I WANT EVERYTHING TO BE DEFINED!
@@ -33,6 +34,19 @@ static const std::string renderTextures[3] = {
 	"normalRT",
 	"depthRT"
 };
+
+template <typename T>
+T clamp(T value, T minVal, T maxVal) {
+    if (value < minVal) {
+        return minVal;
+    }
+    else if (value > maxVal) {
+        return maxVal;
+    }
+    else {
+        return value;
+    }
+}
 
 
 extern float deltaTime; // Time between current frame and last frame

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "utils.hpp"
 #include "buffer.hpp"
 #include "camera.hpp"
@@ -18,4 +17,44 @@ private:
 public:
 	chunkManager(camera &cam);
 	void checkPos(GLuint shaderID);
+};
+
+struct atmosphereParams { //Precomputed Atmospheric Scattering Eric Bruneton, Fabrice Neyret
+	float earthRad = 6371e3f;
+	float atmosphereRad = 6471e3f; //100 km atmosphere
+	float Hr = 8000.0f; //Rayleight scale height //How the density of air molecules with height
+	float Hm = 1200.0f; //Mei scale height //How the density of aerosols scales with height
+	
+	//For RGB wavelengths = 680, 550, 440 nm
+	glm::vec3 betaR = {5.8e-6f, 13.5e-6f, 331.e-6f};
+	glm::vec3 betaM = {2.1e-5f, 2.1e-5f, 2.1e-5f};
+	float meiG = 0.76f;
+};
+
+class atmosphereLUTs {
+private:
+	atmosphereParams atmosphere;
+	GLuint transmittenceLUT;
+	GLuint scatteringLUT;
+
+	static const int TRANSMITTANCE_W = 256;
+	static const int TRANSMITTANCE_H = 64;
+	static const int SCATTERING_R = 32;
+	static const int SCATTERING_MU = 128;
+	static const int SCATTERING_MU_S = 32;
+	static const int SCATTERING_NU = 8;
+
+	void initializeLUTs();
+	void createTransmittanceLUT();
+	void createScatteringLUT();
+	void uvtoTransmittanceParams(float u, float v, float& r, float& mu);
+
+	glm::vec3 computeTransmittance(float r, float mu);
+	glm::vec3 computeScattering(float r, float mu, float mu_s, float nu);
+
+	float rayIntersectSphere(float r, float mu, float radius);
+
+public:
+	atmosphereLUTs(const atmosphereParams& params);
+	void bind(GLuint shaderID);
 };

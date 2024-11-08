@@ -1,5 +1,6 @@
 #include "texture.hpp"
 #include "stb_image.h"
+#include <omp.h>
 
 void textureManager::loadTexture(const std::string& path, const std::string& name) {
 	GLuint texID;
