@@ -100,6 +100,9 @@ int main() {
 	screenQuad screen(1000, 1000);
 
 	chunkManager cM(myCam);
+	atmosphereParams atmosphere;
+	atmosphereLUTs LUT(atmosphere);
+
 	skyBox mSky;
 
 	glfwSwapInterval(1);
@@ -141,6 +144,7 @@ int main() {
 		noise.bindTexture(0, 0, 1, testShader);
 		cM.checkPos(testShader);
 		glDepthFunc(GL_LEQUAL);
+		LUT.bind(skyProgram);
 		mSky.draw(skyProgram);
 		//tesst.draw(testShader, glm::vec3(0, -1.0, 0), glm::vec3(1, 1, 1));
 		glDisable(GL_DEPTH_TEST);

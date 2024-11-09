@@ -59,7 +59,7 @@ atmosphereLUTs::atmosphereLUTs(const atmosphereParams& params) : atmosphere(para
 
 void atmosphereLUTs::initializeLUTs() {
 	createTransmittanceLUT();
-	createScatteringLUT();
+	//createScatteringLUT();
 }
 
 void atmosphereLUTs::bind(GLuint shaderID) {
@@ -67,8 +67,8 @@ void atmosphereLUTs::bind(GLuint shaderID) {
 	glBindTextureUnit(0, transmittenceLUT);
 	setUniform(shaderID, "transmittanceLUT", x);
 	x++;
-	glBindTextureUnit(1, scatteringLUT);
-	setUniform(shaderID, "transmittanceLUT", x);
+	//glBindTextureUnit(1, scatteringLUT);
+	//setUniform(shaderID, "scatteringLUT", x);
 }
 
 void atmosphereLUTs::createTransmittanceLUT() {
