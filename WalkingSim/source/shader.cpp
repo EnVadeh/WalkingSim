@@ -6,26 +6,28 @@ std::string shader::readFile(const std::string& filepath){
 		std::cout << "Shader file " << filepath << " cannot be opened!" << std::endl;
 	}
 
-	return std::string(
+	return std::string (
 		std::istreambuf_iterator<char>(file),  //points to start of string buffer
 		std::istreambuf_iterator<char>()	   //points to end of string buffer
 	);
+
+}
+
+shader::shader(const std::string& filepath) {
+	computeShader.shaderSource = readFile(filepath);
+	compute = 1;
 }
 
 shader::shader(const std::string& filepath1, const std::string& filepath2) : tess(false) {
-
 	simpleShader.vertexSource = readFile(filepath1);
 	simpleShader.fragmentSource = readFile(filepath2);
-
 }
 
 shader::shader(const std::string& filepath1, const std::string& filepath2, const std::string& filepath3, const std::string& filepath4) : tess(true) {
-
 	tessShader.vertexSource = readFile(filepath1);
 	tessShader.tcSource = readFile(filepath2);
 	tessShader.teSource = readFile(filepath3);
 	tessShader.fragmentSource = readFile(filepath4);
-
 }
 
 GLuint shader::compileShader(GLuint shaderType, const std::string& shaderSource) {
@@ -38,7 +40,16 @@ GLuint shader::compileShader(GLuint shaderType, const std::string& shaderSource)
 
 GLuint shader::createShader() {
 	program = glCreateProgram();
-	if (!tess) {
+
+	if (compute) {
+		GLuint cs = compileShader(GL_COMPUTE_SHADER, computeShader.shaderSource);
+		glAttachShader(program, cs);
+		glLinkProgram(program);
+		glValidateProgram(program);
+		glDeleteShader(cs);
+	}
+	
+	else if (!tess) {
 		GLuint vs = compileShader(GL_VERTEX_SHADER, simpleShader.vertexSource);
 		GLuint fs = compileShader(GL_FRAGMENT_SHADER, simpleShader.fragmentSource);
 		glAttachShader(program, vs);
@@ -66,7 +77,6 @@ GLuint shader::createShader() {
 		glDeleteShader(fs);
 	}
 
-	
 	GLint infoLogLength = 512;
 	int success;
 	char infoLog[512];

@@ -34,15 +34,18 @@ struct atmosphereParams { //Precomputed Atmospheric Scattering Eric Bruneton, Fa
 class atmosphereLUTs {
 private:
 	atmosphereParams atmosphere;
-	GLuint transmittenceLUT;
-	GLuint scatteringLUT;
+	GLuint transmittenceLUT; //as eric bruneton paper: 64 x 256
+	GLuint irradianceLUT; //as eric bruneton paper: 16 x 64
+	GLuint scatteringLUT; //as eric bruneton paper: 32 x 128 x 32 x 8 
 
-	static const int TRANSMITTANCE_W = 256;
-	static const int TRANSMITTANCE_H = 64;
-	static const int SCATTERING_R = 32;
-	static const int SCATTERING_MU = 128;
-	static const int SCATTERING_MU_S = 32;
-	static const int SCATTERING_NU = 8;
+
+
+	static const int TRANSMITTANCE_W = 32; 
+	static const int TRANSMITTANCE_H = 32;
+	static const int SCATTERING_R = 16;
+	static const int SCATTERING_MU = 32;
+	static const int SCATTERING_MU_S = 16;
+	static const int SCATTERING_NU = 4;
 
 	void initializeLUTs();
 	void createTransmittanceLUT();

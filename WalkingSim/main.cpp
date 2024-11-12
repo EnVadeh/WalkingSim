@@ -72,6 +72,9 @@ int main() {
 		return -1;
 	}
 	
+	shader computetest("shaders/compute.glsl");
+	GLuint computeShader = computetest.createShader();
+
 	shader test("shaders/testVS.glsl", "shaders/testFS.glsl");
 	GLuint testShader = test.createShader();
 	
@@ -101,9 +104,18 @@ int main() {
 
 	chunkManager cM(myCam);
 	atmosphereParams atmosphere;
-	atmosphereLUTs LUT(atmosphere);
-
+	auto start = std::chrono::high_resolution_clock::now();
+	//atmosphereLUTs LUT(atmosphere);
+	auto stop = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+	std::cout << "The time taken for atmosphere LUTs to be claculated: " << duration.count() << std::endl;
 	skyBox mSky;
+
+	computeOutput LUT;
+	LUT.setup();
+	glUseProgram(computeShader);
+	glDispatchCompute(512 / 16, 512 / 16, 1);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 	glfwSwapInterval(1);
 	//put these things in a fucniton so i can just call the draw frame buffers and all these things type shit
@@ -144,6 +156,7 @@ int main() {
 		noise.bindTexture(0, 0, 1, testShader);
 		cM.checkPos(testShader);
 		glDepthFunc(GL_LEQUAL);
+		//LUT.bind(skyProgram);
 		LUT.bind(skyProgram);
 		mSky.draw(skyProgram);
 		//tesst.draw(testShader, glm::vec3(0, -1.0, 0), glm::vec3(1, 1, 1));

@@ -46,3 +46,20 @@ void textureManager::bindTexture(size_t unit, size_t index, size_t count, GLuint
 		setUniform(shaderID, texNames[index + i], static_cast<int>(unit + i));
 	}
 }
+
+void computeOutput::setup() {
+	glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+	glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);//don't want lookup table values to repeat!
+	glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	
+	glTextureStorage2D(texture, 1, GL_RGBA16F, 512, 512);
+	glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F);
+}
+
+void computeOutput::bind(GLuint shaderID) {
+	glBindTextureUnit(0, texture);
+	int x = 0;
+	setUniform(shaderID, "LUT", x);
+}

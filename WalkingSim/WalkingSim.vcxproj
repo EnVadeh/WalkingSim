@@ -154,12 +154,14 @@
     <ClInclude Include="include\light.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\compute.glsl" />
     <None Include="shaders\renderQuadFS.glsl" />
     <None Include="shaders\renderQuadVS.glsl" />
     <None Include="shaders\testFS.glsl" />
     <None Include="shaders\testVS.glsl" />
     <None Include="shaders\skyBoxVS.glsl" />
     <None Include="shaders\skyBoxFS.glsl" />
+    <None Include="include\shaders\utils.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

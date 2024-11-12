@@ -8,6 +8,7 @@
 #include <glm/ext.hpp>
 #include <iostream>
 #include <memory>
+#include <chrono>
 #include "camera.hpp"
 
 #define M_PI 3.14159265358979323846
@@ -60,6 +61,8 @@ extern size_t UBO_COUNT;
 extern std::vector <GLuint> SHADERS;
 
 glm::mat4 createGeometricToWorldMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
+
+void setCommonShader(const std::string& path);
 
 void setUniform(GLuint shaderID, std::string name, unsigned int val);
 void setUniform(GLuint shaderID, std::string name, int val);

@@ -59,7 +59,7 @@ atmosphereLUTs::atmosphereLUTs(const atmosphereParams& params) : atmosphere(para
 
 void atmosphereLUTs::initializeLUTs() {
 	createTransmittanceLUT();
-	//createScatteringLUT();
+	createScatteringLUT();
 }
 
 void atmosphereLUTs::bind(GLuint shaderID) {
@@ -67,8 +67,8 @@ void atmosphereLUTs::bind(GLuint shaderID) {
 	glBindTextureUnit(0, transmittenceLUT);
 	setUniform(shaderID, "transmittanceLUT", x);
 	x++;
-	//glBindTextureUnit(1, scatteringLUT);
-	//setUniform(shaderID, "scatteringLUT", x);
+	glBindTextureUnit(1, scatteringLUT);
+	setUniform(shaderID, "scatteringLUT", x);
 }
 
 void atmosphereLUTs::createTransmittanceLUT() {
@@ -145,7 +145,7 @@ void atmosphereLUTs::uvtoTransmittanceParams(float u, float v, float& r, float& 
 }
 
 glm::vec3 atmosphereLUTs::computeTransmittance(float r, float mu) {
-	const int STEPS = 500;
+	const int STEPS = 250;
 	float dt = rayIntersectSphere(r, mu, atmosphere.atmosphereRad);
 	dt /= float(STEPS);
 

@@ -91,5 +91,11 @@
     <None Include="shaders\skyBoxFS.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="include\shaders\utils.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\compute.glsl">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
