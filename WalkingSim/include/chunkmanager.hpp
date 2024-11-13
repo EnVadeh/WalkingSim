@@ -24,11 +24,17 @@ struct atmosphereParams { //Precomputed Atmospheric Scattering Eric Bruneton, Fa
 	float atmosphereRad = 6471e3f; //100 km atmosphere
 	float Hr = 8000.0f; //Rayleight scale height //How the density of air molecules with height
 	float Hm = 1200.0f; //Mei scale height //How the density of aerosols scales with height
-	
+	//--16 byte alignment--//
 	//For RGB wavelengths = 680, 550, 440 nm
 	glm::vec3 betaR = {5.8e-6f, 13.5e-6f, 331.e-6f};
+	float padding1;
+	//--16 byte alignment--//
 	glm::vec3 betaM = {2.1e-5f, 2.1e-5f, 2.1e-5f};
+	float padding2;
+	//--16 bit alignment--//
 	float meiG = 0.76f;
+	float padding3[3];
+	//--16 bit alignment--//
 };
 
 class atmosphereLUTs {
@@ -40,8 +46,8 @@ private:
 
 
 
-	static const int TRANSMITTANCE_W = 32; 
-	static const int TRANSMITTANCE_H = 32;
+	static const int TRANSMITTANCE_W = 64; 
+	static const int TRANSMITTANCE_H = 256;
 	static const int SCATTERING_R = 16;
 	static const int SCATTERING_MU = 32;
 	static const int SCATTERING_MU_S = 16;

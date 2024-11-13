@@ -47,14 +47,13 @@ void textureManager::bindTexture(size_t unit, size_t index, size_t count, GLuint
 	}
 }
 
-void computeOutput::setup() {
+void computeOutput::setup(size_t width, size_t height) {
 	glCreateTextures(GL_TEXTURE_2D, 1, &texture);
 	glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);//don't want lookup table values to repeat!
 	glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
-	glTextureStorage2D(texture, 1, GL_RGBA16F, 512, 512);
+	glTextureStorage2D(texture, 1, GL_RGBA16F, width, height);
 	glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F);
 }
 

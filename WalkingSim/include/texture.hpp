@@ -16,6 +16,6 @@ private:
 	GLuint texture;
 	std::string name;
 public:
-	void setup();
+	void setup(size_t width, size_t height);
 	void bind(GLuint shaderID);
 };

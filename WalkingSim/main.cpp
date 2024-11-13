@@ -97,7 +97,7 @@ int main() {
 	lightManager testlights;
 	testlights.initLight(glm::vec4(0.7071, 0.7071, 0, 0), glm::vec4(1, 0, 0, 0));
 	testlights.turnOn(0);
-	testlights.setLights();
+	testlights.setLights();//binding = 0
 
 	frameBuffer firstpass;
 	screenQuad screen(1000, 1000);
@@ -105,16 +105,16 @@ int main() {
 	chunkManager cM(myCam);
 	atmosphereParams atmosphere;
 	auto start = std::chrono::high_resolution_clock::now();
-	//atmosphereLUTs LUT(atmosphere);
+	atmosphereLUTs LUTs(atmosphere); //binding = 1
 	auto stop = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 	std::cout << "The time taken for atmosphere LUTs to be claculated: " << duration.count() << std::endl;
 	skyBox mSky;
 
 	computeOutput LUT;
-	LUT.setup();
+	LUT.setup(64, 256);
 	glUseProgram(computeShader);
-	glDispatchCompute(512 / 16, 512 / 16, 1);
+	glDispatchCompute(64 / 16, 256 / 16, 1); //Basically for one texture, z = 1, x = how many groups, y = how many groups
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 	glfwSwapInterval(1);

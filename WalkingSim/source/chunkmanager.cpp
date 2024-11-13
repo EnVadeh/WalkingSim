@@ -58,8 +58,12 @@ atmosphereLUTs::atmosphereLUTs(const atmosphereParams& params) : atmosphere(para
 }
 
 void atmosphereLUTs::initializeLUTs() {
-	createTransmittanceLUT();
-	createScatteringLUT();
+	//createTransmittanceLUT();
+	//createScatteringLUT();
+	std::vector<atmosphereParams> temp;
+	temp.push_back(atmosphere);
+	uniformBuffer<atmosphereParams> atmosphereBuff(temp, drawFreq::staticDraw);
+	atmosphereBuff.bind();
 }
 
 void atmosphereLUTs::bind(GLuint shaderID) {
