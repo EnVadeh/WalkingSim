@@ -10,8 +10,10 @@
 #include <memory>
 #include <chrono>
 #include "camera.hpp"
+#include <cstdint>
 
 #define M_PI 3.14159265358979323846
+using u8 = uint8_t;
 
 //enum VAO_IDs { Triangles, NumVAOs };
 enum bufferID { ArrayBuffer, ElementBuffer, NumBuffers };
@@ -22,6 +24,7 @@ enum drawID { arrayDraw, elementDraw };
 enum drawFreq { staticDraw = GL_STATIC_DRAW, dynamicDraw = GL_DYNAMIC_DRAW };
 enum drawType { triDraw = GL_TRIANGLES, patchDraw = GL_PATCHES };
 enum lightType { dirLight, pointLight, areaLight };
+
 
 struct Vertex { //THIS IS HOW I WANT EVERYTHING TO BE DEFINED!
 	glm::vec3 vPosition;

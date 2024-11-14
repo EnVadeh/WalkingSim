@@ -98,8 +98,8 @@ void atmosphereLUTs::createTransmittanceLUT() {
 	glTextureParameteri(transmittenceLUT, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(transmittenceLUT, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTextureStorage2D(transmittenceLUT, 0, GL_RGB16F, TRANSMITTANCE_W, TRANSMITTANCE_H);
-	glTextureSubImage2D(transmittenceLUT, 0, 0, 0, TRANSMITTANCE_W, TRANSMITTANCE_H, GL_RGB, GL_FLOAT, data.data());
+	glTextureStorage2D(transmittenceLUT, 1, GL_RGB16F, TRANSMITTANCE_W, TRANSMITTANCE_H);
+	glTextureSubImage2D(transmittenceLUT, 1, 0, 0, TRANSMITTANCE_W, TRANSMITTANCE_H, GL_RGB, GL_FLOAT, data.data());
 }
 
 void atmosphereLUTs::createScatteringLUT() {
@@ -133,8 +133,9 @@ void atmosphereLUTs::createScatteringLUT() {
 	glTextureParameteri(scatteringLUT, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(scatteringLUT, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-	glTextureStorage3D(scatteringLUT, 0, GL_RGB16F, SCATTERING_R * SCATTERING_MU, SCATTERING_MU_S, SCATTERING_NU);
-	glTextureSubImage3D(scatteringLUT, 0, 0, 0, 0, SCATTERING_R * SCATTERING_MU, SCATTERING_MU_S, SCATTERING_NU, GL_RGB, GL_FLOAT, data.data());
+	glTextureStorage3D(scatteringLUT, 1, GL_RGB16F, SCATTERING_R * SCATTERING_MU, SCATTERING_MU_S, SCATTERING_NU);
+	glTextureSubImage3D(scatteringLUT, 1, 0, 0, 0, SCATTERING_R * SCATTERING_MU, SCATTERING_MU_S, SCATTERING_NU, GL_RGB, GL_FLOAT, data.data());
+
 }
 
 void atmosphereLUTs::uvtoTransmittanceParams(float u, float v, float& r, float& mu) {

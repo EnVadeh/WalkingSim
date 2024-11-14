@@ -112,9 +112,9 @@ int main() {
 	skyBox mSky;
 
 	computeOutput LUT;
-	LUT.setup(64, 256);
+	LUT.setup(512, 512);
 	glUseProgram(computeShader);
-	glDispatchCompute(64 / 16, 256 / 16, 1); //Basically for one texture, z = 1, x = how many groups, y = how many groups
+	glDispatchCompute(512 / 16, 512 / 16, 1); //Basically for one texture, z = 1, x = how many groups, y = how many groups
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 	glfwSwapInterval(1);
@@ -157,7 +157,7 @@ int main() {
 		cM.checkPos(testShader);
 		glDepthFunc(GL_LEQUAL);
 		//LUT.bind(skyProgram);
-		LUT.bind(skyProgram);
+		LUT.bind(skyProgram, 0);
 		mSky.draw(skyProgram);
 		//tesst.draw(testShader, glm::vec3(0, -1.0, 0), glm::vec3(1, 1, 1));
 		glDisable(GL_DEPTH_TEST);

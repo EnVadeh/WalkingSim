@@ -71,7 +71,6 @@ void buffer::draw(drawID dI, drawType dT, glm::vec3 pos, glm::vec3 rotation,  gl
 
 frameBuffer::frameBuffer() {
 	glCreateFramebuffers(1, &FBO);
-	std::cout << "The consturcotr is being called!";
 	RT.resize(3);
 	glCreateTextures(GL_TEXTURE_2D, 3, RT.data());
 	for (size_t i = 0; i < 3; i++) {
@@ -83,6 +82,7 @@ frameBuffer::frameBuffer() {
 		glTextureParameteri(RT[i], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
 		glNamedFramebufferTexture(FBO, GL_COLOR_ATTACHMENT0 + i, RT[i], 0);
+		
 	}
 	setupRenderBuffer();
 	glNamedFramebufferDrawBuffers(FBO, 3, drawBuffers);

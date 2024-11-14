@@ -19,7 +19,8 @@ layout(std140, binding = 1) uniform AtmosphereUBO {
     atmosphereParams atm;
 };
 
-layout(rgba16f, binding = 0) uniform image2D outputTexture;
+layout(rgb16f, binding =0) uniform image2D outImage;
+
 
 vec2 uvtoTransittanceParams(float u, float v){
     float H = sqrt(atm.atmosphereRad * atm.atmosphereRad - atm.earthRad * atm.earthRad);
@@ -79,5 +80,6 @@ void main() {
     vec3 transmittance = computeTransmittance(r, mu);
 
     // Write the data to the output texture
-    imageStore(outputTexture, pixelCoords, vec4(transmittance, 1.0));
+    //imageStore(outputTexture, pixelCoords, vec4(transmittance, 1.0));
+    imageStore(outputTexture, pixelCoords, vec4(1, 0, 1, 1.0));
 }

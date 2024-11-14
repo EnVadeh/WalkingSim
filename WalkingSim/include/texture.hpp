@@ -17,5 +17,6 @@ private:
 	std::string name;
 public:
 	void setup(size_t width, size_t height);
-	void bind(GLuint shaderID);
+	void setup(size_t width, size_t height, size_t depth);
+	void bind(GLuint shaderID, u8 unit);
 };
