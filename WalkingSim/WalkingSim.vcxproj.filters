@@ -94,7 +94,7 @@
     <None Include="include\shaders\utils.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="shaders\compute.glsl">
+    <None Include="shaders\computeTransmittance.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

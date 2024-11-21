@@ -2,7 +2,7 @@
 
 in vec3 fNorm;
 
-uniform sampler2D LUT;
+uniform sampler2D transmittanceLUT;
 uniform vec3 vCamPos;
 
 const float EARTH_RADIUS = 6371e3;
@@ -24,5 +24,5 @@ layout(location = 0) out vec3 outColor;
 
 
 void main(){
-	outColor = texture2D(LUT, fNorm.xy).xyz;
+	outColor = texture2D(transmittanceLUT, fNorm.xy).xyz;
 }

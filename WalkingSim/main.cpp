@@ -72,7 +72,7 @@ int main() {
 		return -1;
 	}
 	
-	shader computetest("shaders/compute.glsl");
+	shader computetest("shaders/computeTransmittance.glsl");
 	GLuint computeShader = computetest.createShader();
 
 	shader test("shaders/testVS.glsl", "shaders/testFS.glsl");
@@ -104,18 +104,18 @@ int main() {
 
 	chunkManager cM(myCam);
 	atmosphereParams atmosphere;
-	auto start = std::chrono::high_resolution_clock::now();
 	atmosphereLUTs LUTs(atmosphere); //binding = 1
-	auto stop = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-	std::cout << "The time taken for atmosphere LUTs to be claculated: " << duration.count() << std::endl;
 	skyBox mSky;
 
-	computeOutput LUT;
-	LUT.setup(512, 512);
+	computeOutput transmittance;
+	transmittance.setup(64, 256, 0);
+	//auto start = std::chrono::high_resolution_clock::now();
 	glUseProgram(computeShader);
-	glDispatchCompute(512 / 16, 512 / 16, 1); //Basically for one texture, z = 1, x = how many groups, y = how many groups
+	glDispatchCompute(64 / 16, 256 / 16, 1); //Basically for one texture, z = 1, x = how many groups, y = how many groups
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	//auto stop = std::chrono::high_resolution_clock::now();
+	//auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+	//std::cout << "The time taken for transmittance to be claculated: " << duration.count() << std::endl;
 
 	glfwSwapInterval(1);
 	//put these things in a fucniton so i can just call the draw frame buffers and all these things type shit
@@ -156,8 +156,7 @@ int main() {
 		noise.bindTexture(0, 0, 1, testShader);
 		cM.checkPos(testShader);
 		glDepthFunc(GL_LEQUAL);
-		//LUT.bind(skyProgram);
-		LUT.bind(skyProgram, 0);
+		transmittance.bind(skyProgram, 0, "transmittanceLUT");
 		mSky.draw(skyProgram);
 		//tesst.draw(testShader, glm::vec3(0, -1.0, 0), glm::vec3(1, 1, 1));
 		glDisable(GL_DEPTH_TEST);

@@ -47,32 +47,31 @@ void textureManager::bindTexture(size_t unit, size_t index, size_t count, GLuint
 	}
 }
 
-void computeOutput::setup(size_t width, size_t height) {
+void computeOutput::setup(size_t width, size_t height, u8 unit) {
 	glCreateTextures(GL_TEXTURE_2D, 1, &texture);
 	glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);//don't want lookup table values to repeat!
 	glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTextureStorage2D(texture, 1, GL_RGB16F, width, height); //level for this is how many mipmaps
-	glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGB16F); //what mip level to load :) 
-
+	glTextureStorage2D(texture, 1, GL_RGBA16F, width, height); //level for this is how many mipmaps
+	glBindImageTexture(unit, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F); //what mip level to load :) 
 }
 
-void computeOutput::setup(size_t width, size_t height, size_t depth) {
+void computeOutput::setup(size_t width, size_t height, size_t depth, u8 unit) {
 	glCreateTextures(GL_TEXTURE_3D, 1, &texture);
 	glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);//don't want lookup table values to repeat!
 	glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(texture, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTextureStorage3D(texture, 1, GL_RGB16F, width, height, depth); //level for this is how many mipmaps
-	glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGB16F); //what mip level to load :) 
+	glTextureStorage3D(texture, 1, GL_RGBA16F, width, height, depth); //level for this is how many mipmaps
+	glBindImageTexture(unit, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F); //what mip level to load :) 
 
 }
 
-void computeOutput::bind(GLuint shaderID, u8 unit) {
+void computeOutput::bind(GLuint shaderID, u8 unit, std::string name) {
 	glBindTextureUnit(unit, texture);
 	int x = 0;
-	setUniform(shaderID, "LUT", x);
+	setUniform(shaderID, name, x);
 	
 }

@@ -154,7 +154,7 @@
     <ClInclude Include="include\light.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\compute.glsl" />
+    <None Include="shaders\computeTransmittance.glsl" />
     <None Include="shaders\renderQuadFS.glsl" />
     <None Include="shaders\renderQuadVS.glsl" />
     <None Include="shaders\testFS.glsl" />
