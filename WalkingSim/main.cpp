@@ -72,8 +72,10 @@ int main() {
 		return -1;
 	}
 	
-	shader computetest("shaders/computeTransmittance.glsl");
-	GLuint computeShader = computetest.createShader();
+	shader firstCompute("shaders/computeTransmittance.glsl");
+	GLuint transLUT = firstCompute.createShader();
+	shader secondCompute("shaders/computeScattering.glsl");
+	GLuint scatLUT = secondCompute.createShader();
 
 	shader test("shaders/testVS.glsl", "shaders/testFS.glsl");
 	GLuint testShader = test.createShader();
@@ -110,7 +112,7 @@ int main() {
 	computeOutput transmittance;
 	transmittance.setup(64, 256, 0);
 	//auto start = std::chrono::high_resolution_clock::now();
-	glUseProgram(computeShader);
+	glUseProgram(transLUT);
 	glDispatchCompute(64 / 16, 256 / 16, 1); //Basically for one texture, z = 1, x = how many groups, y = how many groups
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	//auto stop = std::chrono::high_resolution_clock::now();

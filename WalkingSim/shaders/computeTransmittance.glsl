@@ -19,13 +19,13 @@ layout(std140, binding = 1) uniform AtmosphereUBO {
     atmosphereParams atm;
 };
 
-layout(rgba16f, binding =0) uniform image2D LUT;
+layout(rgba16f, binding = 0) uniform image2D transmittanceLUT;
 
 float ClampCosine(float mu) {
   return clamp(mu, float(-1.0), float(1.0));
 }
 
-float DistanceToTopAtmosphereBoundary( //don't need distance to bottom boundary for transmittance
+float distanceToTopAtmosphereBoundary( //don't need distance to bottom boundary for transmittance
     float r, float mu) {
     float discriminant = r * r * (mu * mu - 1.0) + atm.atmosphereRad * atm.atmosphereRad;
     return -r * mu + sqrt(max(discriminant, 0.0));
@@ -38,7 +38,7 @@ float DistanceToBottomAtmosphereBoundary(
 }
 
 vec3 computeTransmittanceToTopAtmosphereBoundary(float r, float mu){ //basically how much light still is retained when it comes from the sun(source) to the point that we're looking at
-    float dx = DistanceToTopAtmosphereBoundary(r, mu);
+    float dx = distanceToTopAtmosphereBoundary(r, mu);
     int SAMPLE_COUNT = 500;
     float dx_step = dx/ float(SAMPLE_COUNT);
     float x = 0.0;
@@ -68,18 +68,18 @@ vec2 getTransmittanceTextureUVfromRMu(float r, float mu){ //brunetone's implemen
     float H = sqrt(atm.atmosphereRad * atm.atmosphereRad - atm.earthRad * atm.earthRad);
     float rho = sqrt(r * r - atm.earthRad * atm.earthRad);
 
-    float d = DistanceToTopAtmosphereBoundary(r, mu);
+    float d = distanceToTopAtmosphereBoundary(r, mu);
     float d_min = atm.atmosphereRad - r;
     float d_max = rho + H;
     float x_mu = (d - d_min) / (d_max - d_min);
     float x_r = rho / H;
-    ivec2 size = imageSize(LUT);
+    ivec2 size = imageSize(transmittanceLUT);
     return vec2(getTextureCoordFromUnitRange(x_mu, size.x), getTextureCoordFromUnitRange(x_r, size.y));
 
 }
 
 vec2 getRMuFromTransmittanceTextureUV(vec2 uv){
-    ivec2 size = imageSize(LUT);
+    ivec2 size = imageSize(transmittanceLUT);
     float x_mu = getUnitRangeFromTextureCoord(uv.x, size.x); 
     float x_r = getUnitRangeFromTextureCoord(uv.y, size.y); 
 
@@ -98,7 +98,7 @@ vec2 getRMuFromTransmittanceTextureUV(vec2 uv){
 
 void main() {
     ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
-    ivec2 size = imageSize(LUT);
+    ivec2 size = imageSize(transmittanceLUT);
 
     if(pixelCoords.x >= size.x || pixelCoords.y >= size.y){
         return;
@@ -111,6 +111,6 @@ void main() {
     vec3 transmittance = computeTransmittanceToTopAtmosphereBoundary(rmu.x, rmu.y);
 
     // Write the data to the output texture
-    imageStore(LUT, pixelCoords, vec4(transmittance, 1.0));
+    imageStore(transmittanceLUT, pixelCoords, vec4(transmittance, 1.0));
 
 }

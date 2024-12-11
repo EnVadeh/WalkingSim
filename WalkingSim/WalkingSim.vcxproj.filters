@@ -97,5 +97,8 @@
     <None Include="shaders\computeTransmittance.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\computeScattering.glsl">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
