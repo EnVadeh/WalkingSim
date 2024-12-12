@@ -72,5 +72,5 @@ private:
 
 public:
 	atmosphereLUTs(const atmosphereParams& params);
-	//void bind(GLuint shaderID);
+	void bind(GLuint shaderID);
 };
