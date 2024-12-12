@@ -106,7 +106,7 @@ int main() {
 
 	chunkManager cM(myCam);
 	atmosphereParams atmosphere;
-	atmosphereLUTs LUTs(atmosphere); //binding = 1
+	atmosphereLUTs params(atmosphere); //Gives the atmosphere params to the shader to the shader
 	skyBox mSky;
 
 	computeOutput transmittance;
