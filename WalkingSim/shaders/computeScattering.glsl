@@ -48,6 +48,8 @@ layout(rgba16f, binding = 1) uniform image3D scatteringLUT;
 layout(rgba16f, binding = 2) uniform image3D rayleighLUT;
 layout(rgba16f, binding = 3) uniform image3D mieLUT;
 
+
+
 float clampCosine(float mu) {
   return clamp(mu, float(-1.0), float(1.0));
 }
