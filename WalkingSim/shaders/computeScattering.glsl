@@ -8,6 +8,8 @@ const int SCATTERING_TEXTURE_R_SIZE = 16;
 const int SCATTERING_TEXTURE_MU_SIZE = 16;
 const int SCATTERING_TEXTURE_MU_S_SIZE = 16;
 const int SCATTERING_TEXTURE_NU_SIZE = 4;
+const float EarthRayleighScaleHeight = 8.0f;
+const float EarthMieScaleHeight = 1.2f;
 
 struct atmosphereParams{
     float earthRad;
@@ -22,16 +24,29 @@ struct atmosphereParams{
     vec3 betaMext;
 };
 
+struct densityProfileLayer { 
+  float width;
+  float exp_term;
+  float exp_scale;
+  float linear_term;
+  float constant_term;
+  float padding1;
+  float padding2;
+  float padding3;
+};
+
 layout(std140, binding = 1) uniform AtmosphereUBO {
     atmosphereParams atm;
 };
 
-uniform sampler2D transmittanceLUT;
+layout(std140, binding = 2) uniform densityProfileUBO {
+    densityProfileLayer dp[4];//first 2 are atmosphere layers, then rayleigh, and mie
+};
+
+layout(rgba16f, binding = 0) uniform image2D transmittanceLUT;
 layout(rgba16f, binding = 1) uniform image3D scatteringLUT;
 layout(rgba16f, binding = 2) uniform image3D rayleighLUT;
 layout(rgba16f, binding = 3) uniform image3D mieLUT;
-
-
 
 float clampCosine(float mu) {
   return clamp(mu, float(-1.0), float(1.0));
@@ -43,6 +58,17 @@ float clampRadius(float r) {
 
 float safeSqrt(float num){
   return sqrt(max(num, 0.0));
+}
+
+float getLayerDensity(int layer, float altitude) {
+  float density = dp[layer].exp_term * exp(dp[layer].exp_scale * altitude) +
+      dp[layer].linear_term * altitude + dp[layer].constant_term;
+  return clamp(density, float(0.0), float(1.0));
+}
+
+float getProfileDensity(int layer, float altitude) {
+  //return altitude < dp[layer].width ? getLayerDensity(0, altitude) : getLayerDensity(1, altitude);
+    return getLayerDensity(layer, altitude);
 }
 
 float getTextureCoordFromUnitRange(float x, int texture_size){
@@ -81,13 +107,14 @@ vec2 getTransmittanceTextureUVfromRMu(float r, float mu){ //brunetone's implemen
     float d_max = rho + H;
     float x_mu = (d - d_min) / (d_max - d_min);
     float x_r = rho / H;
-    ivec2 size = textureSize(transmittanceLUT, 0);
+    ivec2 size = imageSize(transmittanceLUT);
     return vec2(getTextureCoordFromUnitRange(x_mu, size.x), getTextureCoordFromUnitRange(x_r, size.y));
 }
 
 vec3 GetTransmittanceToTopAtmosphereBoundary(float r, float mu) {
   vec2 uv = getTransmittanceTextureUVfromRMu(r, mu);
-  return vec3(texture(transmittanceLUT, uv).rgb);
+  ivec2 texelCoords = ivec2(uv * vec2(imageSize(transmittanceLUT)));
+  return vec3(imageLoad(transmittanceLUT, texelCoords).rgb);
 }
 
 vec3 GetTransmittance(float r, float  mu, float d, bool ray_r_mu_intersects_ground) {
@@ -118,6 +145,8 @@ void computeSingleScatteringIntegrand(float r, float mu, float mu_s, float nu, f
     float r_d = clampRadius(safeSqrt(d * d + 2.0 * r * mu * d + r * r));
     float mu_s_d = clampCosine((r * mu_s + d * nu) / r_d);
     vec3 transmittance = GetTransmittance(r, mu, d, ray_r_mu_intersects_ground) * GetTransmittanceToSun(r_d, mu_s_d);
+    rayleigh = transmittance * getProfileDensity(2, r_d - atm.earthRad);
+    mie = transmittance * getProfileDensity(3, r_d - atm.earthRad);
 }
 
 void computeSingleScattering(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground, out vec3 rayleigh, out vec3 mie){
@@ -240,4 +269,5 @@ void main() {
     imageStore(scatteringLUT, pixelCoords, vec4(scattering));
     imageStore(rayleighLUT, pixelCoords, vec4(rayleigh, 0.0));
     imageStore(mieLUT, pixelCoords, vec4(mie, 0.0));
+
 }

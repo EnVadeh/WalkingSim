@@ -19,6 +19,21 @@ layout(std140, binding = 1) uniform AtmosphereUBO {
     atmosphereParams atm;
 };
 
+struct densityProfileLayer { 
+  float width;
+  float exp_term;
+  float exp_scale;
+  float linear_term;
+  float constant_term;
+  float padding1;
+  float padding2;
+  float padding3;
+};
+
+layout(std140, binding = 2) uniform densityProfileUBO {
+    densityProfileLayer dp[2];
+};
+
 layout(rgba16f, binding = 0) uniform image2D transmittanceLUT;
 
 float ClampCosine(float mu) {
@@ -113,5 +128,4 @@ void main() {
 
     // Write the data to the output texture
     imageStore(transmittanceLUT, pixelCoords, vec4(transmittance, 1.0));
-
 }
