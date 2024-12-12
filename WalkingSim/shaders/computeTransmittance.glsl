@@ -78,37 +78,38 @@ vec2 getTransmittanceTextureUVfromRMu(float r, float mu){ //brunetone's implemen
 
 }
 
-vec2 getRMuFromTransmittanceTextureUV(vec2 uv){
+void getRMuFromTransmittanceTextureUV(vec2 uv, out float r, out float mu){
     ivec2 size = imageSize(transmittanceLUT);
     float x_mu = getUnitRangeFromTextureCoord(uv.x, size.x); 
     float x_r = getUnitRangeFromTextureCoord(uv.y, size.y); 
 
     float H = sqrt(atm.atmosphereRad * atm.atmosphereRad - atm.earthRad * atm.earthRad);
     float rho = H * x_r;
-    float r = sqrt(rho * rho + atm.earthRad * atm.earthRad);
+    r = sqrt(rho * rho + atm.earthRad * atm.earthRad);
     float d_min = atm.earthRad - r;
     float d_max = rho + H;
     float d = d_min + x_mu * (d_max - d_min);
-    float mu = d == 0.0 ? 1.0 : (H * H - rho * rho - d * d) / (2.0 * r * d);
+    mu = d == 0.0 ? 1.0 : (H * H - rho * rho - d * d) / (2.0 * r * d);
     mu = ClampCosine(mu);
-    return vec2(r, mu);
 }
 
-
+vec3 computeTransmittanceToTopAtmosphereBoundaryTexture(vec2 frag_coord, vec2 size){
+    float r;
+    float mu;
+    getRMuFromTransmittanceTextureUV( frag_coord / size, r, mu);
+    return computeTransmittanceToTopAtmosphereBoundary(r, mu);
+}
 
 void main() {
     ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
-    ivec2 size = imageSize(transmittanceLUT);
+    vec2 size = imageSize(transmittanceLUT);
 
     if(pixelCoords.x >= size.x || pixelCoords.y >= size.y){
         return;
     }
+    vec2 frag_coord = vec2(pixelCoords);
 
-    vec2 uv = (vec2(pixelCoords) + 0.5 / vec2(size));
-    
-    vec2 rmu = getRMuFromTransmittanceTextureUV(uv);
-
-    vec3 transmittance = computeTransmittanceToTopAtmosphereBoundary(rmu.x, rmu.y);
+    vec3 transmittance = computeTransmittanceToTopAtmosphereBoundaryTexture(frag_coord, size);
 
     // Write the data to the output texture
     imageStore(transmittanceLUT, pixelCoords, vec4(transmittance, 1.0));

@@ -2,6 +2,8 @@
 #include "utils.hpp"
 #include "buffer.hpp"
 #include "camera.hpp"
+#include "texture.hpp"
+
 
 class chunkManager { //I think I should save some chunks and draw them, and discard them later if I go too far away
 private:
@@ -40,28 +42,32 @@ struct atmosphereParams { //Precomputed Atmospheric Scattering Eric Bruneton, Fa
 class atmosphereLUTs {
 private:
 	atmosphereParams atmosphere;
+	computeOutput CO[4];
 	GLuint transmittenceLUT; //as eric bruneton paper: 64 x 256
 	GLuint irradianceLUT; //as eric bruneton paper: 16 x 64
-	GLuint scatteringLUT; //as eric bruneton paper: 32 x 128 x 32 x 8 
+	GLuint scatteringLUTs[3];// as eric bruneton paper: 32 x 128 x 32 x 8. 0 = scatteringLUT, 1 = rayleighDeltaLUT, 2 = mieDeltaLUT
 
-	static const int TRANSMITTANCE_W = 64; 
-	static const int TRANSMITTANCE_H = 256;
-	static const int SCATTERING_R = 16;
-	static const int SCATTERING_MU = 32;
-	static const int SCATTERING_MU_S = 16;
-	static const int SCATTERING_NU = 4;
+	static const int TRANSMITTANCE_W = 256; 
+	static const int TRANSMITTANCE_H = 64;
+	static const int SCATTERING_R = 32;
+	static const int SCATTERING_MU = 128;
+	static const int SCATTERING_MU_S = 32;
+	static const int SCATTERING_NU = 8;
+	static const int SCATTERING_TEXTURE_WIDTH = SCATTERING_MU_S * SCATTERING_NU;
+	static const int SCATTERING_TEXTURE_HEIGHT = SCATTERING_MU;
+	static const int SCATTERING_TEXTURE_DEPTH = SCATTERING_R;
 
 	void initializeLUTs();
 	void createTransmittanceLUT();
 	void createScatteringLUT();
-	void uvtoTransmittanceParams(float u, float v, float& r, float& mu);
+	//void uvtoTransmittanceParams(float u, float v, float& r, float& mu);
 
-	glm::vec3 computeTransmittance(float r, float mu);
-	glm::vec3 computeScattering(float r, float mu, float mu_s, float nu);
+	//glm::vec3 computeTransmittance(float r, float mu);
+	//glm::vec3 computeScattering(float r, float mu, float mu_s, float nu);
 
-	float rayIntersectSphere(float r, float mu, float radius);
+	//float rayIntersectSphere(float r, float mu, float radius);
 
 public:
 	atmosphereLUTs(const atmosphereParams& params);
-	void bind(GLuint shaderID);
+	//void bind(GLuint shaderID);
 };

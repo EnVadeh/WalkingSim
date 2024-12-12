@@ -27,7 +27,11 @@ layout(std140, binding = 1) uniform AtmosphereUBO {
 };
 
 uniform sampler2D transmittanceLUT;
-layout(rgba16f, binding = 1) uniform image2D scatteringLUT;
+layout(rgba16f, binding = 1) uniform image3D scatteringLUT;
+layout(rgba16f, binding = 2) uniform image3D rayleighLUT;
+layout(rgba16f, binding = 3) uniform image3D mieLUT;
+
+
 
 float clampCosine(float mu) {
   return clamp(mu, float(-1.0), float(1.0));
@@ -227,6 +231,13 @@ void computeSingleScatteringTexture(vec3 frag_coord, out vec3 rayleigh, out vec3
 }
 
 void main() {
-    ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
-
+    ivec3 pixelCoords = ivec3(gl_GlobalInvocationID.xyz);
+    vec3 frag_coord = vec3(pixelCoords);
+    vec3 rayleigh;
+    vec3 mie;
+    computeSingleScatteringTexture(frag_coord, rayleigh, mie); //need layer for 3d coordinates
+    vec4 scattering = vec4(rayleigh.rgb, mie.r);
+    imageStore(scatteringLUT, pixelCoords, vec4(scattering));
+    imageStore(rayleighLUT, pixelCoords, vec4(rayleigh, 0.0));
+    imageStore(mieLUT, pixelCoords, vec4(mie, 0.0));
 }
