@@ -41,12 +41,15 @@ struct atmosphereParams { //Precomputed Atmospheric Scattering Eric Bruneton, Fa
 
 class atmosphereLUTs {
 private:
+	std::vector<densityProfileLayer> DP;
 	atmosphereParams atmosphere;
 	computeOutput CO[4];
-	GLuint transmittenceLUT; //as eric bruneton paper: 64 x 256
-	GLuint irradianceLUT; //as eric bruneton paper: 16 x 64
-	GLuint scatteringLUTs[3];// as eric bruneton paper: 32 x 128 x 32 x 8. 0 = scatteringLUT, 1 = rayleighDeltaLUT, 2 = mieDeltaLUT
-
+	std::vector<std::string>lutNames;
+	std::string a1 = "transmittanceLUT"; 
+	std::string a2 = "scatteringLUT"; 
+	std::string a3 = "rayleighLUT";
+	std::string a4 = "mieLUT";
+	std::string a5 = "irradianceLUT"; //as eric bruneton paper: 16 x 64 //cehck again not compeltely sure
 	static const int TRANSMITTANCE_W = 256; 
 	static const int TRANSMITTANCE_H = 64;
 	static const int SCATTERING_R = 32;
@@ -69,5 +72,5 @@ private:
 
 public:
 	atmosphereLUTs(const atmosphereParams& params);
-	//void bind(GLuint shaderID);
+	void bind(GLuint shaderID);
 };

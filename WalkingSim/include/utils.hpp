@@ -39,6 +39,18 @@ static const std::string renderTextures[3] = {
 	"depthRT"
 };
 
+struct densityProfileLayer {
+	float width;
+	float exp_term;
+	float exp_scale;
+	float linear_term;
+	float constant_term;
+	float padding1;
+	float padding2;
+	float padding3;
+};
+
+
 template <typename T>
 T clamp(T value, T minVal, T maxVal) {
     if (value < minVal) {
