@@ -95,7 +95,7 @@ int main() {
 
 	camera myCam(glm::vec3{ 0.0, 1.0, 5.0 }, glm::vec3{ 0.0, 0.0, -1.0 }, -90.0, 0.0);
 	mainCam = &myCam;
-	//terrain tesst(10, 10);
+
 	lightManager testlights;
 	testlights.initLight(glm::vec4(0.7071, 0.7071, 0, 0), glm::vec4(1, 0, 0, 0));
 	testlights.turnOn(0);
@@ -106,14 +106,15 @@ int main() {
 
 	chunkManager cM(myCam);
 	atmosphereParams atmosphere;
-	atmosphereLUTs params(atmosphere); //Gives the atmosphere params to the shader to the shader
+	atmosphereLUTs LUTs(atmosphere); //Gives the atmosphere params to the shader to the shader
 	skyBox mSky;
 
-	computeOutput transmittance;
-	transmittance.setup(64, 256, 0);
 	//auto start = std::chrono::high_resolution_clock::now();
 	glUseProgram(transLUT);
-	glDispatchCompute(64 / 16, 256 / 16, 1); //Basically for one texture, z = 1, x = how many groups, y = how many groups
+	glDispatchCompute(256 / 16, 64 / 16, 1); //Basically for one texture, z = 1, x = how many groups, y = how many groups
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	glUseProgram(scatLUT);
+	glDispatchCompute(256 / 16, 128 / 16, 32 / 16);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	//auto stop = std::chrono::high_resolution_clock::now();
 	//auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
@@ -158,7 +159,7 @@ int main() {
 		noise.bindTexture(0, 0, 1, testShader);
 		cM.checkPos(testShader);
 		glDepthFunc(GL_LEQUAL);
-		transmittance.bind(skyProgram, 0, "transmittanceLUT");
+		LUTs.bind(skyProgram);
 		mSky.draw(skyProgram);
 		//tesst.draw(testShader, glm::vec3(0, -1.0, 0), glm::vec3(1, 1, 1));
 		glDisable(GL_DEPTH_TEST);

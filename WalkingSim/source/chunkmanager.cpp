@@ -62,25 +62,29 @@ void atmosphereLUTs::initializeLUTs() {
 	temp.push_back(atmosphere);
 	uniformBuffer<atmosphereParams> atmosphereBuff(temp, drawFreq::staticDraw);
 	atmosphereBuff.bind();
+	const float EarthRayleighScaleHeight = 8.0f;
+	const float EarthMieScaleHeight = 1.2f;
+	DP.push_back({ 25000.0, 0.0, 0.0, 1.0 / 15000.0, -2.0 / 3.0});
+	DP.push_back({ 0.0, 0.0, 0.0, -1.0 / 15000.0, 8.0 / 3.0 });
+	DP.push_back({ 0.0, 1.0, -1.0/ 8.0f, 0, 0.0 });//rayleigh
+	DP.push_back({ 0.0, 1.0, -1.0/ 1.2f, 0, 0.0 });//mie
+
+	uniformBuffer<densityProfileLayer> profileBuff(DP, drawFreq::staticDraw);
+	profileBuff.bind();
 	createTransmittanceLUT();
 	createScatteringLUT();
+	lutNames.push_back(a1);
+	lutNames.push_back(a2);
+	lutNames.push_back(a3);
+	lutNames.push_back(a4);
+	//lutNames.push_back(a5);
 }
 
-//void atmosphereLUTs::bind(GLuint shaderID) {
-//	int x = 0;
-//	glBindTextureUnit(0, transmittenceLUT);
-//	setUniform(shaderID, "transmittanceLUT", x);
-//	x++;
-//	glBindTextureUnit(1, scatteringLUTs[0]);
-//	setUniform(shaderID, "scatteringLUT", x);
-//	x++;
-//	glBindTextureUnit(2, scatteringLUTs[1]);
-//	setUniform(shaderID, "rayleighLUT", x);
-//	x++;
-//	glBindTextureUnit(3, scatteringLUTs[2]);
-//	setUniform(shaderID, "mieLUT", x);
-//}
-//
+void atmosphereLUTs::bind(GLuint shaderID) {
+	for (u8 i = 0; i < 4; i++)
+		CO[0].bind(shaderID, i, lutNames[i]);
+}
+
 void atmosphereLUTs::createTransmittanceLUT() {
 	//Remnant from when I tried precomputing in the CPU FOR SOME REASON
 	//std::vector<float> data(TRANSMITTANCE_W * TRANSMITTANCE_H * 3);
@@ -124,7 +128,8 @@ void atmosphereLUTs::createScatteringLUT() {
 	//			}
 
 	for (u8 i = 1; i < 4; i++)
-		CO[i].setup(SCATTERING_TEXTURE_WIDTH, SCATTERING_TEXTURE_HEIGHT, SCATTERING_TEXTURE_DEPTH, i);
+		CO[i].setup(SCATTERING_TEXTURE_WIDTH, SCATTERING_TEXTURE_HEIGHT, SCATTERING_TEXTURE_DEPTH, i); // 1 = scatteringLUT, 2 = rayleighDeltaLUT, 3 = mieDeltaLUT
+
 }
 //
 //void atmosphereLUTs::uvtoTransmittanceParams(float u, float v, float& r, float& mu) {
