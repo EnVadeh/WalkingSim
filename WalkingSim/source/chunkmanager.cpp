@@ -82,7 +82,7 @@ void atmosphereLUTs::initializeLUTs() {
 
 void atmosphereLUTs::bind(GLuint shaderID) {
 	for (u8 i = 0; i < 4; i++)
-		CO[0].bind(shaderID, i, lutNames[i]);
+		CO[i].bind(shaderID, i, lutNames[i]);
 }
 
 void atmosphereLUTs::createTransmittanceLUT() {
@@ -116,7 +116,6 @@ void atmosphereLUTs::createScatteringLUT() {
 	//				float mu = -1.0f + 2.0f * float(j) / (SCATTERING_MU - 1);
 	//				float muS = -1.0f + 2.0f * float(k) / (SCATTERING_MU_S - 1);
 	//				float nu = -1.0f + 2.0f * float(l) / (SCATTERING_NU - 1);
-
 	//				glm::vec3 scattering = computeScattering(r, mu, muS, nu);
 
 	//				int idx = ((l * SCATTERING_MU_S * SCATTERING_MU * SCATTERING_R + k * SCATTERING_MU * SCATTERING_R + j * SCATTERING_R + i) * 3);

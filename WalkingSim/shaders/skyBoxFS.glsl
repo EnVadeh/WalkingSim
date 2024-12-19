@@ -27,5 +27,7 @@ layout(location = 0) out vec3 outColor;
 
 
 void main(){
-	outColor = texture(scatteringLUT, fNorm).xyz;
+	vec2 fragc = gl_FragCoord.xy;
+	vec2 uv = fragc/1000.0f;
+	outColor = texture(scatteringLUT, vec3(uv, 2)).xyz;
 }

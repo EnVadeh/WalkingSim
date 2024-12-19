@@ -125,7 +125,6 @@ void main() {
     vec2 frag_coord = vec2(pixelCoords);
 
     vec3 transmittance = computeTransmittanceToTopAtmosphereBoundaryTexture(frag_coord, size);
-
     // Write the data to the output texture
     imageStore(transmittanceLUT, pixelCoords, vec4(transmittance, 1.0));
 }

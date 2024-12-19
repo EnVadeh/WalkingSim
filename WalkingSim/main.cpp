@@ -114,7 +114,7 @@ int main() {
 	glDispatchCompute(256 / 16, 64 / 16, 1); //Basically for one texture, z = 1, x = how many groups, y = how many groups
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	glUseProgram(scatLUT);
-	glDispatchCompute(256 / 16, 128 / 16, 32 / 16);
+	glDispatchCompute(256 / 16, 128 / 16, 32 / 4);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	//auto stop = std::chrono::high_resolution_clock::now();
 	//auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
@@ -157,7 +157,7 @@ int main() {
 		glDisable(GL_CULL_FACE);
 
 		noise.bindTexture(0, 0, 1, testShader);
-		cM.checkPos(testShader);
+		//cM.checkPos(testShader);
 		glDepthFunc(GL_LEQUAL);
 		LUTs.bind(skyProgram);
 		mSky.draw(skyProgram);

@@ -1,6 +1,6 @@
 #version 430 core
 
-layout(local_size_x = 16, local_size_y = 16) in;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 4) in;
 
 const float SUN_ANGULAR_RADIUS = 0.004675; // in radians
 const vec3 solar_irradiance = vec3(1.0f);
@@ -268,7 +268,13 @@ void main() {
     vec3 mie;
     computeSingleScatteringTexture(frag_coord, rayleigh, mie); //need layer for 3d coordinates
     vec4 scattering = vec4(rayleigh.rgb, mie.r);
-    imageStore(scatteringLUT, pixelCoords, vec4(scattering));
+    ivec2 fakeUV = pixelCoords.xy;
+    fakeUV.y = imageSize(transmittanceLUT).y - fakeUV.y;
+    vec4 transmittance = imageLoad(transmittanceLUT, fakeUV);
+    vec4 scatterColor = vec4(0.0);
+    scatterColor += vec4(atm.betaR,1.0) * transmittance;
+    scatterColor += vec4(atm.betaM, 1.0) * transmittance;
+    imageStore(scatteringLUT, pixelCoords, scatterColor);
     imageStore(rayleighLUT, pixelCoords, vec4(rayleigh, 0.0));
     imageStore(mieLUT, pixelCoords, vec4(mie, 0.0));
 

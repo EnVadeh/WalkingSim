@@ -71,7 +71,6 @@ void computeOutput::setup(size_t width, size_t height, size_t depth, u8 unit) {
 
 void computeOutput::bind(GLuint shaderID, u8 unit, std::string name) {
 	glBindTextureUnit(unit, texture);
-	int x = 0;
-	setUniform(shaderID, name, x);
+	setUniform(shaderID, name, unit);
 	
 }
