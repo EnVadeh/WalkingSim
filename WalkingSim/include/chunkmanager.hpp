@@ -43,13 +43,14 @@ class atmosphereLUTs {
 private:
 	std::vector<densityProfileLayer> DP;
 	atmosphereParams atmosphere;
-	computeOutput CO[4];
+	computeOutput CO[5];
 	std::vector<std::string>lutNames;
 	std::string a1 = "transmittanceLUT"; 
 	std::string a2 = "scatteringLUT"; 
 	std::string a3 = "rayleighLUT";
 	std::string a4 = "mieLUT";
-	std::string a5 = "irradianceLUT"; //as eric bruneton paper: 16 x 64 //cehck again not compeltely sure
+	std::string a5 = "deltaIrradianceLUT"; //as eric bruneton paper: 16 x 64 //cehck again not compeltely sure
+	
 	static const int TRANSMITTANCE_W = 256; 
 	static const int TRANSMITTANCE_H = 64;
 	static const int SCATTERING_R = 32;
@@ -59,6 +60,8 @@ private:
 	static const int SCATTERING_TEXTURE_WIDTH = SCATTERING_MU_S * SCATTERING_NU;
 	static const int SCATTERING_TEXTURE_HEIGHT = SCATTERING_MU;
 	static const int SCATTERING_TEXTURE_DEPTH = SCATTERING_R;
+	static const int IRRADIANCE_TEXTURE_WIDTH = 64;
+	static const int IRRADIANCE_TEXTURE_HEIGHT = 16;
 
 	void initializeLUTs();
 	void createTransmittanceLUT();

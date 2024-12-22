@@ -76,6 +76,8 @@ int main() {
 	GLuint transLUT = firstCompute.createShader();
 	shader secondCompute("shaders/computeScattering.glsl");
 	GLuint scatLUT = secondCompute.createShader();
+	shader thirdCompute("shaders/computeIrradiance.glsl");
+	GLuint irrLUT = thirdCompute.createShader();
 
 	shader test("shaders/testVS.glsl", "shaders/testFS.glsl");
 	GLuint testShader = test.createShader();
@@ -115,6 +117,9 @@ int main() {
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	glUseProgram(scatLUT);
 	glDispatchCompute(256 / 16, 128 / 16, 32 / 4);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	glUseProgram(irrLUT);
+	glDispatchCompute(64 / 16, 16 / 16, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	//auto stop = std::chrono::high_resolution_clock::now();
 	//auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
