@@ -3,6 +3,7 @@
 in vec3 fNorm;
 
 uniform sampler2D transmittanceLUT;
+uniform sampler2D deltaIrradianceLUT;
 uniform sampler3D scatteringLUT;
 uniform sampler3D rayleighLUT;
 uniform sampler3D mieLUT;
@@ -29,5 +30,5 @@ layout(location = 0) out vec3 outColor;
 void main(){
 	vec2 fragc = gl_FragCoord.xy;
 	vec2 uv = fragc/1000.0f;
-	outColor = texture(scatteringLUT, vec3(uv, 2)).xyz;
+	outColor = texture2D(deltaIrradianceLUT, vec2(uv)).xyz;
 }
