@@ -67,8 +67,8 @@ float getLayerDensity(int layer, float altitude) {
 }
 
 float getProfileDensity(int layer, float altitude) {
-  //return altitude < dp[layer].width ? getLayerDensity(0, altitude) : getLayerDensity(1, altitude);
-    return getLayerDensity(layer, altitude);
+  return altitude < dp[0].width ? getLayerDensity(0, altitude) : getLayerDensity(layer, altitude);
+
 }
 
 float getTextureCoordFromUnitRange(float x, int texture_size){
@@ -262,6 +262,8 @@ void computeSingleScatteringTexture(vec3 frag_coord, out vec3 rayleigh, out vec3
 void main() {
     ivec3 pixelCoords = ivec3(gl_GlobalInvocationID.xyz);
     vec3 frag_coord = vec3(pixelCoords);
+    vec3 size = imageSize(scatteringLUT);
+    frag_coord = frag_coord/size;
     vec3 rayleigh;
     vec3 mie;
     computeSingleScatteringTexture(frag_coord, rayleigh, mie); //need layer for 3d coordinates
