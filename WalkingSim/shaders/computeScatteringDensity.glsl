@@ -2,6 +2,8 @@
 
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 4) in;
 
+uniform int scatteringORDER;
+
 const float SUN_ANGULAR_RADIUS = 0.004675; // in radians
 const vec3 solar_irradiance = vec3(1.0f);
 const int SCATTERING_TEXTURE_R_SIZE = 16;
@@ -44,7 +46,7 @@ layout(std140, binding = 1) uniform AtmosphereUBO {
 };
 
 layout(std140, binding = 2) uniform densityProfileUBO {
-    densityProfileLayer dp[4];//first 2 are atmosphere layers, then rayleigh, and mie
+    densityProfileLayer dp[5];//first 2 are atmosphere layers, then rayleigh, and mie, then empty
 };
 
 layout(rgba16f, binding = 0) uniform image2D transmittanceLUT;
@@ -74,8 +76,8 @@ float getLayerDensity(int layer, float altitude) {
 }
 
 float getProfileDensity(int layer, float altitude) {
-  //return altitude < dp[layer].width ? getLayerDensity(0, altitude) : getLayerDensity(1, altitude);
-    return getLayerDensity(layer, altitude);
+    return altitude < dp[0].width ? getLayerDensity(0, altitude) : getLayerDensity(layer, altitude);
+
 }
 
 float getTextureCoordFromUnitRange(float x, int texture_size){
@@ -236,7 +238,7 @@ void getRMuMuSNuFromScatteringTextureFragCoord(vec3 frag_coord, out float r, out
     nu = clamp(nu, mu * mu_s - sqrt((1.0 - mu * mu) * (1.0 - mu_s * mu_s)), mu * mu_s + sqrt((1.0 - mu * mu) * (1.0 - mu_s * mu_s)));
 }
 
-vec3 getScattering(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground) {
+vec3 getScatteringRayleigh(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground) {
   vec4 uvwz = getScatteringTextureUVWZfromRmuMuSNu(r, mu, mu_s, nu, ray_r_mu_intersects_ground);
   float tex_coord_x = uvwz.x * float(SCATTERING_TEXTURE_NU_SIZE - 1);
   float tex_x = floor(tex_coord_x);
@@ -245,10 +247,25 @@ vec3 getScattering(float r, float mu, float mu_s, float nu, bool ray_r_mu_inters
       uvwz.z, uvwz.w);
   vec3 uvw1 = vec3((tex_x + 1.0 + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
       uvwz.z, uvwz.w);
-  ivec3 texelCoords0 = ivec3(uvw0 * vec3(imageSize(scatteringLUT)));
-  ivec3 texelCoords1 = ivec3(uvw1 * vec3(imageSize(scatteringLUT)));
-  return vec3(imageLoad(scatteringLUT, texelCoords0).rgb * (1.0 - lerp) +
-      imageLoad(scatteringLUT, texelCoords1).rgb * lerp);
+  ivec3 texelCoords0 = ivec3(uvw0 * vec3(imageSize(rayleighLUT))); //the scatteringLUT will be different...
+  ivec3 texelCoords1 = ivec3(uvw1 * vec3(imageSize(rayleighLUT)));
+  return vec3(imageLoad(rayleighLUT, texelCoords0).rgb * (1.0 - lerp) +
+      imageLoad(rayleighLUT, texelCoords1).rgb * lerp);
+}
+
+vec3 getScatteringMie(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground) {
+  vec4 uvwz = getScatteringTextureUVWZfromRmuMuSNu(r, mu, mu_s, nu, ray_r_mu_intersects_ground);
+  float tex_coord_x = uvwz.x * float(SCATTERING_TEXTURE_NU_SIZE - 1);
+  float tex_x = floor(tex_coord_x);
+  float lerp = tex_coord_x - tex_x;
+  vec3 uvw0 = vec3((tex_x + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
+      uvwz.z, uvwz.w);
+  vec3 uvw1 = vec3((tex_x + 1.0 + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
+      uvwz.z, uvwz.w);
+  ivec3 texelCoords0 = ivec3(uvw0 * vec3(imageSize(mieLUT))); //the scatteringLUT will be different...
+  ivec3 texelCoords1 = ivec3(uvw1 * vec3(imageSize(mieLUT)));
+  return vec3(imageLoad(mieLUT, texelCoords0).rgb * (1.0 - lerp) +
+      imageLoad(mieLUT, texelCoords1).rgb * lerp);
 }
 
 vec3 getScattering(
@@ -256,13 +273,14 @@ vec3 getScattering(
     bool ray_r_mu_intersects_ground,
     int scattering_order) {
   if (scattering_order == 1) {
-    vec3 rayleigh = getScattering(r, mu, mu_s, nu, ray_r_mu_intersects_ground);
-    vec3 mie = getScattering(r, mu, mu_s, nu, ray_r_mu_intersects_ground);
+
+    vec3 rayleigh = getScatteringRayleigh(r, mu, mu_s, nu, ray_r_mu_intersects_ground);
+    vec3 mie = getScatteringMie(r, mu, mu_s, nu, ray_r_mu_intersects_ground);
     return rayleigh * rayleighPhaseFunction(nu) +
         mie * miePhaseFunction(miePhaseFunction_g, nu);
   } else {
-    return getScattering(r, mu, mu_s, nu,
-        ray_r_mu_intersects_ground);
+    return getScatteringRayleigh(r, mu, mu_s, nu,
+        ray_r_mu_intersects_ground); //turns out delta_multiple_scattering_texture = delta_rayleigh_texture
   }
 }
 
@@ -372,7 +390,9 @@ vec3 computeScatteringDensityTexture(vec3 frag_coord, int scattering_order) {
 void main() {
     ivec3 pixelCoords = ivec3(gl_GlobalInvocationID.xyz);
     vec3 frag_coord = vec3(pixelCoords);
+    vec3 size = imageSize(scatteringDensityLUT);
+    frag_coord = frag_coord / size;
 
-    vec3 scattering_density = computeScatteringDensityTexture(vec3(frag_coord.xy, frag_coord.z + 0.5), 3); //3 = scattering order, I have to go from 2-4... find an intuitive way to run this computeShader
+    vec3 scattering_density = computeScatteringDensityTexture(vec3(frag_coord.xy, frag_coord.z + 0.5), scatteringORDER); //3 = scattering order, I have to go from 2-4... find an intuitive way to run this computeShader
     imageStore(scatteringDensityLUT, pixelCoords, vec4(scattering_density, 0));
 }
