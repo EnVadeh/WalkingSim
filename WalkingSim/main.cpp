@@ -123,10 +123,13 @@ int main() {
 	glUseProgram(irrLUT);
 	glDispatchCompute(64 / 16, 16 / 16, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	glUseProgram(scatDensLUT);
-	glDispatchCompute(256 / 16, 128 / 16, 32 / 4);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
+	int i = 2;
+	for (i; i < 4; i++) {
+		setUniform(scatDensLUT, "scatteringORDER", i);
+		glUseProgram(scatDensLUT);
+		glDispatchCompute(256 / 16, 128 / 16, 32 / 4);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	}
 	//auto stop = std::chrono::high_resolution_clock::now();
 	//auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 	//std::cout << "The time taken for transmittance to be claculated: " << duration.count() << std::endl;

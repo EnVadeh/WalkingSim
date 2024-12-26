@@ -66,8 +66,10 @@ void atmosphereLUTs::initializeLUTs() {
 	const float EarthMieScaleHeight = 1.2f;
 	DP.push_back({ 25000.0, 0.0, 0.0, 1.0 / 15000.0, -2.0 / 3.0});
 	DP.push_back({ 0.0, 0.0, 0.0, -1.0 / 15000.0, 8.0 / 3.0 });
-	DP.push_back({ 0.0, 1.0, -1.0/ 8.0f, 0, 0.0 });//rayleigh
-	DP.push_back({ 0.0, 1.0, -1.0/ 1.2f, 0, 0.0 });//mie
+	DP.push_back({ 0.0, 1.0, -1.0/ 8000.0f, 0, 0.0 });//rayleigh //in rayleigh densityprifle, 0 is the 0 then 1 is this
+	DP.push_back({ 0.0, 1.0, -1.0/ 1200.0f, 0, 0.0 });//mie
+	DP.push_back({ 0.0, 0.0, 0.0 , 0, 0.0 });//empty
+	
 
 	uniformBuffer<densityProfileLayer> profileBuff(DP, drawFreq::staticDraw);
 	profileBuff.bind();
