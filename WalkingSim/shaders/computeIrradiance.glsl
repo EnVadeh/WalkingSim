@@ -6,7 +6,9 @@ layout(rgba16f, binding = 0) uniform image2D transmittanceLUT;
 layout(rgba16f, binding = 4) uniform image2D deltaIrradianceLUT;
 
 const float SUN_ANGULAR_RADIUS = 0.004675; // in radians
-const vec3 solar_irradiance = vec3(1.0f);
+const vec3 solar_irradiance = vec3(1.5f);
+const int TRANSMITTANCE_W = 256; 
+const int TRANSMITTANCE_H = 64;
 const int SCATTERING_TEXTURE_R_SIZE = 16;
 const int SCATTERING_TEXTURE_MU_SIZE = 16;
 const int SCATTERING_TEXTURE_MU_S_SIZE = 16;
@@ -82,8 +84,7 @@ vec2 getTransmittanceTextureUVfromRMu(float r, float mu){ //brunetone's implemen
     float d_max = rho + H;
     float x_mu = (d - d_min) / (d_max - d_min);
     float x_r = rho / H;
-    ivec2 size = imageSize(transmittanceLUT);
-    return vec2(getTextureCoordFromUnitRange(x_mu, size.x), getTextureCoordFromUnitRange(x_r, size.y));
+    return vec2(getTextureCoordFromUnitRange(x_mu, TRANSMITTANCE_W), getTextureCoordFromUnitRange(x_r, TRANSMITTANCE_H));
 }
 
 vec3 getTransmittanceToTopAtmosphereBoundary(float r, float mu) {
