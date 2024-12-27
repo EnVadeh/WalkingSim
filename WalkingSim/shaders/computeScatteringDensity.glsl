@@ -8,10 +8,10 @@ const float SUN_ANGULAR_RADIUS = 0.004675; // in radians
 const vec3 solar_irradiance = vec3(1.5f);
 const int TRANSMITTANCE_W = 256; 
 const int TRANSMITTANCE_H = 64;
-const int SCATTERING_TEXTURE_R_SIZE = 16;
-const int SCATTERING_TEXTURE_MU_SIZE = 16;
-const int SCATTERING_TEXTURE_MU_S_SIZE = 16;
-const int SCATTERING_TEXTURE_NU_SIZE = 4;
+const int SCATTERING_TEXTURE_R_SIZE = 32;
+const int SCATTERING_TEXTURE_MU_SIZE = 128;
+const int SCATTERING_TEXTURE_MU_S_SIZE = 32;
+const int SCATTERING_TEXTURE_NU_SIZE = 8;
 const int IRRADIANCE_TEXTURE_WIDTH = 64;
 const int IRRADIANCE_TEXTURE_HEIGHT = 16;
 const float EarthRayleighScaleHeight = 8.0f;
@@ -245,6 +245,7 @@ void getRMuMuSNuFromScatteringTextureFragCoord(vec3 frag_coord, out float r, out
 }
 
 vec3 getScatteringRayleigh(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground) {
+
   vec4 uvwz = getScatteringTextureUVWZfromRmuMuSNu(r, mu, mu_s, nu, ray_r_mu_intersects_ground);
   float tex_coord_x = uvwz.x * float(SCATTERING_TEXTURE_NU_SIZE - 1);
   float tex_x = floor(tex_coord_x);
@@ -278,6 +279,7 @@ vec3 getScattering(
     float r, float mu, float mu_s, float nu,
     bool ray_r_mu_intersects_ground,
     int scattering_order) {
+
   if (scattering_order == 1) {
 
     vec3 rayleigh = getScatteringRayleigh(r, mu, mu_s, nu, ray_r_mu_intersects_ground);
@@ -287,6 +289,7 @@ vec3 getScattering(
   } else {
     return getScatteringRayleigh(r, mu, mu_s, nu,
         ray_r_mu_intersects_ground); //turns out delta_multiple_scattering_texture = delta_rayleigh_texture
+  
   }
 }
 
@@ -340,6 +343,7 @@ vec3 computeScatteringDensity(float r, float mu, float mu_s, float nu, int scatt
       transmittance_to_ground =
           getTransmittance(r, cos_theta, distance_to_ground, true /* ray_intersects_ground */);
       ground_albedo = vec3(0.1);//can change this in the future maybe
+
 }
 
 
@@ -398,5 +402,5 @@ void main() {
     ivec3 pixelCoords = ivec3(gl_GlobalInvocationID.xyz);
     vec3 frag_coord = vec3(pixelCoords);
     vec3 scattering_density = computeScatteringDensityTexture(vec3(frag_coord.xy, frag_coord.z + 0.5), 5); //3 = scattering order, I have to go from 2-4... find an intuitive way to run this computeShader
-    imageStore(scatteringDensityLUT, pixelCoords, vec4(scattering_density, 0));
+   // imageStore(scatteringDensityLUT, pixelCoords, vec4(scattering_density, 0));
 }
