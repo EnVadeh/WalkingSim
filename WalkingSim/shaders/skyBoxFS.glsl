@@ -31,5 +31,5 @@ layout(location = 0) out vec3 outColor;
 void main(){
 	vec2 fragc = gl_FragCoord.xy;
 	vec2 uv = fragc/1000.0f;
-	outColor = texture(scatteringDensityLUT, vec3(uv, 2)).xyz + texture(scatteringLUT, vec3(uv, 1)).xyz + texture(rayleighLUT, vec3(uv, 1)).xyz;
+	outColor = texture(scatteringDensityLUT, vec3(uv, 0.2)).xyz;
 }
