@@ -149,33 +149,15 @@ vec3 GetTransmittanceToSun(float r, float mu_s) {
       smoothstep(-sin_theta_h * SUN_ANGULAR_RADIUS, sin_theta_h * SUN_ANGULAR_RADIUS, mu_s - cos_theta_h);
 }
 
-/*void computeSingleScatteringIntegrand(float r, float mu, float mu_s, float nu, float d, bool ray_r_mu_intersects_ground, out vec3 rayleigh, out vec3 mie){
+/*
+void computeSingleScatteringIntegrand(float r, float mu, float mu_s, float nu, float d, bool ray_r_mu_intersects_ground, out vec3 rayleigh, out vec3 mie){
     float r_d = clampRadius(safeSqrt(d * d + 2.0 * r * mu * d + r * r));
     float mu_s_d = clampCosine((r * mu_s + d * nu) / r_d);
     vec3 transmittance = GetTransmittance(r, mu, d, ray_r_mu_intersects_ground) * GetTransmittanceToSun(r_d, mu_s_d);
     rayleigh = transmittance * getProfileDensity(2, r_d - atm.earthRad);
     mie = transmittance * getProfileDensity(3, r_d - atm.earthRad);
-}
+}*/
 
-void computeSingleScattering(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground, out vec3 rayleigh, out vec3 mie){
-    const int SAMPLE_COUNT = 50;
-    float dx = distanceToNearestAtmosphereBoudnary(r, mu, ray_r_mu_intersects_ground) / float(SAMPLE_COUNT);
-
-    vec3 rayleigh_sum = vec3(0.0);
-    vec3 mie_sum = vec3(0.0);
-    for(int i = 0; i <= SAMPLE_COUNT; ++i){
-        float d_i = float(i) * dx;
-        vec3 rayleigh_i;
-        vec3 mie_i;
-        computeSingleScatteringIntegrand(r, mu, mu_s, nu, d_i, ray_r_mu_intersects_ground, rayleigh_i, mie_i);
-        float weight_i = (i == 0 || i == SAMPLE_COUNT) ? 0.5 : 1.0;
-        rayleigh_sum += rayleigh_i * weight_i;
-        mie_sum += mie_i * weight_i;
-    }
-    rayleigh = rayleigh_sum * dx * solar_irradiance * atm.betaR; 
-    mie = mie_sum * dx * solar_irradiance * atm.betaM;
-}
-*/
 
 void computeSingleScatteringIntegrand(float r, float mu, float mu_s, float nu, float d, bool ray_r_mu_intersects_ground, out vec3 rayleigh, out vec3 mie){
     float r_d = clampRadius(safeSqrt(d * d + 2.0 * r * mu * d + r * r));
@@ -311,6 +293,7 @@ void main() {
     computeSingleScatteringTexture(frag_coord, rayleigh, mie); //need layer for 3d coordinates
     vec4 scattering = vec4(rayleigh.rgb, mie.r);
     ivec2 fakeUV = pixelCoords.xy;
+    fakeUV.y = imageSize(transmittanceLUT).y - fakeUV.y;
     vec4 transmittance = imageLoad(transmittanceLUT, fakeUV);
     imageStore(scatteringLUT, pixelCoords, vec4(rayleigh, mie.r));
     imageStore(rayleighLUT, pixelCoords, vec4(rayleigh, 0.0));
