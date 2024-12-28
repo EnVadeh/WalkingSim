@@ -245,7 +245,6 @@ void getRMuMuSNuFromScatteringTextureFragCoord(vec3 frag_coord, out float r, out
 }
 
 vec3 getScatteringRayleigh(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground) {
-
   vec4 uvwz = getScatteringTextureUVWZfromRmuMuSNu(r, mu, mu_s, nu, ray_r_mu_intersects_ground);
   float tex_coord_x = uvwz.x * float(SCATTERING_TEXTURE_NU_SIZE - 1);
   float tex_x = floor(tex_coord_x);
@@ -258,6 +257,21 @@ vec3 getScatteringRayleigh(float r, float mu, float mu_s, float nu, bool ray_r_m
   ivec3 texelCoords1 = ivec3(uvw1 * vec3(imageSize(rayleighLUT)));
   return vec3(imageLoad(rayleighLUT, texelCoords0).rgb * (1.0 - lerp) +
       imageLoad(rayleighLUT, texelCoords1).rgb * lerp);
+}
+
+vec3 getScatteringDelta(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground) {
+  vec4 uvwz = getScatteringTextureUVWZfromRmuMuSNu(r, mu, mu_s, nu, ray_r_mu_intersects_ground);
+  float tex_coord_x = uvwz.x * float(SCATTERING_TEXTURE_NU_SIZE - 1);
+  float tex_x = floor(tex_coord_x);
+  float lerp = tex_coord_x - tex_x;
+  vec3 uvw0 = vec3((tex_x + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
+      uvwz.z, uvwz.w);
+  vec3 uvw1 = vec3((tex_x + 1.0 + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
+      uvwz.z, uvwz.w);
+  ivec3 texelCoords0 = ivec3(uvw0 * vec3(imageSize(rayleighLUT))); //the scatteringLUT will be different...
+  ivec3 texelCoords1 = ivec3(uvw1 * vec3(imageSize(rayleighLUT)));
+  return vec3(imageLoad(scatteringLUT, texelCoords0).rgb * (1.0 - lerp) +
+      imageLoad(scatteringLUT, texelCoords1).rgb * lerp);
 }
 
 vec3 getScatteringMie(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground) {
@@ -287,7 +301,7 @@ vec3 getScattering(
     return rayleigh * rayleighPhaseFunction(nu) +
         mie * miePhaseFunction(miePhaseFunction_g, nu);
   } else {
-    return getScatteringRayleigh(r, mu, mu_s, nu,
+    return getScatteringDelta(r, mu, mu_s, nu,
         ray_r_mu_intersects_ground); //turns out delta_multiple_scattering_texture = delta_rayleigh_texture
   
   }
@@ -343,10 +357,7 @@ vec3 computeScatteringDensity(float r, float mu, float mu_s, float nu, int scatt
       transmittance_to_ground =
           getTransmittance(r, cos_theta, distance_to_ground, true /* ray_intersects_ground */);
       ground_albedo = vec3(0.1);//can change this in the future maybe
-
-}
-
-
+    }
     for (int samp = 0; samp < 2 * SAMPLE_COUNT; ++samp) { //had to change sample variable to samp because new GLSL
       float  phi = (float(samp) + 0.5) * dphi;
       vec3 omega_i = vec3(cos(phi) * sin_theta, sin(phi) * sin_theta, cos_theta);
@@ -357,6 +368,8 @@ vec3 computeScatteringDensity(float r, float mu, float mu_s, float nu, int scatt
       // (n-1)-th order:
       float  nu1 = dot(omega_s, omega_i);
       vec3 incident_radiance = getScattering(r, omega_i.z, mu_s, nu1, ray_r_theta_intersects_ground, scattering_order - 1);
+          ivec3 pixelCoords = ivec3(gl_GlobalInvocationID.xyz);
+        imageStore(scatteringDensityLUT, pixelCoords, vec4(incident_radiance, 0));
 
       // and of the contribution from the light paths with n-1 bounces and whose
       // last bounce is on the ground. This contribution is the product of the
@@ -401,6 +414,6 @@ vec3 computeScatteringDensityTexture(vec3 frag_coord, int scattering_order) {
 void main() {
     ivec3 pixelCoords = ivec3(gl_GlobalInvocationID.xyz);
     vec3 frag_coord = vec3(pixelCoords);
-    vec3 scattering_density = computeScatteringDensityTexture(vec3(frag_coord.xy, frag_coord.z + 0.5), 5); //3 = scattering order, I have to go from 2-4... find an intuitive way to run this computeShader
-   // imageStore(scatteringDensityLUT, pixelCoords, vec4(scattering_density, 0));
+    vec3 scattering_density = computeScatteringDensityTexture(vec3(frag_coord.xy, frag_coord.z + 0.5), scatteringORDER); //3 = scattering order, I have to go from 2-4... find an intuitive way to run this computeShader
+    //imageStore(scatteringDensityLUT, pixelCoords, vec4(scattering_density, 0));
 }
