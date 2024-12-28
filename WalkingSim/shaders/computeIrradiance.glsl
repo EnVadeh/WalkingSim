@@ -97,8 +97,8 @@ vec3 computeDirectIrradiance(float r, float mu_s) {
     float alpha_s = SUN_ANGULAR_RADIUS;
     // Approximate average of the cosine factor mu_s over the visible fraction of
     // the Sun disc.
-    float average_cosine_factor = mu_s < -alpha_s ? 0.0 : (mu_s > alpha_s ? mu_s : (mu_s + alpha_s) * (mu_s + alpha_s) / (4.0 * alpha_s));
-    return solar_irradiance * getTransmittanceToTopAtmosphereBoundary(r, mu_s) * average_cosine_factor;
+    //float average_cosine_factor = mu_s < -alpha_s ? 0.0 : (mu_s > alpha_s ? mu_s : (mu_s + alpha_s) * (mu_s + alpha_s) / (4.0 * alpha_s));
+    return solar_irradiance * getTransmittanceToTopAtmosphereBoundary(r, mu_s) * clamp(0, 1, mu_s);//average_cosine_factor;
 }
 
 vec3 ComputeDirectIrradianceTexture(vec2 frag_coord, vec2 size) {
