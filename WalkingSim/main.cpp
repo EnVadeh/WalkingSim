@@ -80,6 +80,8 @@ int main() {
 	GLuint irrLUT = thirdCompute.createShader();
 	shader fourthCompute("shaders/computeScatteringDensity.glsl");
 	GLuint scatDensLUT = fourthCompute.createShader();
+	shader fifthCompute("shaders/computeMultiScattering.glsl");
+	GLuint multiScatLUT = fifthCompute.createShader();
 
 	shader test("shaders/testVS.glsl", "shaders/testFS.glsl");
 	GLuint testShader = test.createShader();

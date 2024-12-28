@@ -106,5 +106,6 @@
     <None Include="shaders\computeScatteringDensity.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\computeMultiScattering.glsl" />
   </ItemGroup>
 </Project>
