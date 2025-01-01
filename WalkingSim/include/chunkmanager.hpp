@@ -35,7 +35,12 @@ struct atmosphereParams { //Precomputed Atmospheric Scattering Eric Bruneton, Fa
 	float padding2;
 	//--16 bit alignment--//
 	float meiG = 0.76f;
+	float padding3;
+	float padding4;
+	float padding5;
+	//--16 bit alignment--//
 	glm::vec3 betaMext = { 2.33e-5, 2.33e-5, 2.33e-5 };
+	float padding6;
 	//--16 bit alignment--//
 };
 
@@ -43,7 +48,7 @@ class atmosphereLUTs {
 private:
 	std::vector<densityProfileLayer> DP;
 	atmosphereParams atmosphere;
-	computeOutput CO[7];
+	computeOutput CO[8];
 	std::vector<std::string>lutNames;
 	std::string a1 = "transmittanceLUT"; 
 	std::string a2 = "scatteringLUT"; 
@@ -51,8 +56,9 @@ private:
 	std::string a4 = "mieLUT";
 	std::string a5 = "deltaIrradianceLUT"; //as eric bruneton paper: 16 x 64 //cehck again not compeltely sure
 	std::string a6 = "scatteringDensityLUT";
-	std::string a7 = "multipleScatteringLUT";
-
+	std::string a7 = "irradianceLUT";
+	std::string a8 = "multipleScatteringLUT";
+	
 
 	static const int TRANSMITTANCE_W = 256; 
 	static const int TRANSMITTANCE_H = 64;
