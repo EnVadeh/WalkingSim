@@ -8,6 +8,8 @@ uniform sampler2D deltaIrradianceLUT;
 uniform sampler3D rayleighLUT;
 uniform sampler3D mieLUT;
 uniform sampler3D scatteringDensityLUT;
+uniform sampler2D irradianceLUT;
+uniform sampler3D multiScatteringLUT;
 uniform vec3 vCamPos;
 
 const float EARTH_RADIUS = 6371e3;
@@ -31,5 +33,6 @@ layout(location = 0) out vec3 outColor;
 void main(){
 	vec2 fragc = gl_FragCoord.xy;
 	vec2 uv = fragc/1000.0f;
-	outColor = texture(scatteringDensityLUT, vec3(uv, 0.2)).xyz;// + texture(rayleighLUT, vec3(uv, 0.2)).xyz + texture(mieLUT, vec3(uv, 0.2)).xyz + texture(transmittanceLUT, vec2(uv)).xyz + texture(deltaIrradianceLUT, vec2(uv)).xyz;
+	//outColor = texture(irradianceLUT, vec2(uv)).xyz + texture(rayleighLUT, vec3(uv, 0.0)).xyz + texture(mieLUT, vec3(uv, 0.0)).xyz + texture(scatteringDensityLUT, vec3(uv, 0.0)).xyz + texture(multiScatteringLUT, vec3(uv, 0.0)).xyz + texture(transmittanceLUT, vec2(uv)).xyz + texture(deltaIrradianceLUT, vec2(uv)).xyz;
+	outColor = texture(multiScatteringLUT, vec3(uv, 0.0)).xyz;
 }
