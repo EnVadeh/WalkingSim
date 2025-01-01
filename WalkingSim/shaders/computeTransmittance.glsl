@@ -16,7 +16,11 @@ struct atmosphereParams{
     vec3 betaM;
     float padding2;
     float meiG;
+    float padding3;
+    float padding4;
+    float padding5;
     vec3 betaMext;
+    float padding6;
 };
 
 struct densityProfileLayer { 
@@ -101,13 +105,13 @@ float ComputeOpticalLengthToTopAtmosphereBoundary(float r, float mu, float scale
 
 
 vec3 computeTransmittanceToTopAtmosphereBoundary(float r, float mu){ //basically how much light still is retained when it comes from the sun(source) to the point that we're looking at
-    vec3 transmittance = atm.betaR * ComputeOpticalLengthToTopAtmosphereBoundary(r, mu, atm.Hr) + atm.betaM * ComputeOpticalLengthToTopAtmosphereBoundary(r, mu, atm.Hm);
+    vec3 transmittance = atm.betaR * ComputeOpticalLengthToTopAtmosphereBoundary(r, mu, atm.Hr) + atm.betaMext * ComputeOpticalLengthToTopAtmosphereBoundary(r, mu, atm.Hm);
     return exp(-transmittance);
 }
 
 /*
 vec3 computeTransmittanceToTopAtmosphereBoundary(float r, float mu){ //basically how much light still is retained when it comes from the sun(source) to the point that we're looking at
-    return exp(-(atm.betaR * ComputeOpticalLengthToTopAtmosphereBoundary(2, r, mu) + atm.betaMext * ComputeOpticalLengthToTopAtmosphereBoundary(3, r, mu)));
+    return exp(-(atm.betaR * ComputeOpticalLengthToTopAtmosphereBoundary(2, r, mu) + atm.betaM * ComputeOpticalLengthToTopAtmosphereBoundary(3, r, mu)));
 }*/
 
 float getTextureCoordFromUnitRange(float x, int texture_size){

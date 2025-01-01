@@ -14,6 +14,10 @@ const int SCATTERING_TEXTURE_MU_S_SIZE = 32;
 const int SCATTERING_TEXTURE_NU_SIZE = 8;
 const int IRRADIANCE_TEXTURE_WIDTH = 64;
 const int IRRADIANCE_TEXTURE_HEIGHT = 16;
+const int SCATTERING_TEXTURE_WIDTH = SCATTERING_TEXTURE_MU_S_SIZE * SCATTERING_TEXTURE_NU_SIZE;
+const int SCATTERING_TEXTURE_HEIGHT = SCATTERING_TEXTURE_MU_SIZE;
+const int SCATTERING_TEXTURE_DEPTH = SCATTERING_TEXTURE_R_SIZE;
+const ivec3 SCATTERING_SIZE = ivec3(SCATTERING_TEXTURE_WIDTH, SCATTERING_TEXTURE_HEIGHT, SCATTERING_TEXTURE_DEPTH);
 const float EarthRayleighScaleHeight = 8.0f;
 const float EarthMieScaleHeight = 1.2f;
 const float miePhaseFunction_g = 0.80; //assymetry parameter for larger areosols
@@ -30,7 +34,11 @@ struct atmosphereParams{
     vec3 betaM;
     float padding2;
     float meiG;
+    float padding3;
+    float padding4;
+    float padding5;
     vec3 betaMext;
+    float padding6;
 };
 
 struct densityProfileLayer { 
@@ -253,10 +261,9 @@ vec3 getScatteringRayleigh(float r, float mu, float mu_s, float nu, bool ray_r_m
       uvwz.z, uvwz.w);
   vec3 uvw1 = vec3((tex_x + 1.0 + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
       uvwz.z, uvwz.w);
-  ivec3 iImageCoord0 = ivec3(uvw0 * imageSize(rayleighLUT));
-  ivec3 iImageCoord1 = ivec3(uvw1 * imageSize(rayleighLUT));
-  return vec3(imageLoad(rayleighLUT, iImageCoord0).rgb * (1.0 - lerp) +
-      imageLoad(rayleighLUT, iImageCoord1).rgb * lerp);
+  ivec3 iImageCoord0 = ivec3(uvw0 * ivec3(SCATTERING_SIZE));
+  ivec3 iImageCoord1 = ivec3(uvw1 * ivec3(SCATTERING_SIZE));
+  return vec3(imageLoad(rayleighLUT, iImageCoord0).rgb * (1.0 - lerp) + imageLoad(rayleighLUT, iImageCoord1).rgb * lerp);
 }
 
 vec3 getScatteringDelta(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground) {
@@ -268,10 +275,9 @@ vec3 getScatteringDelta(float r, float mu, float mu_s, float nu, bool ray_r_mu_i
       uvwz.z, uvwz.w);
   vec3 uvw1 = ivec3((tex_x + 1.0 + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
       uvwz.z, uvwz.w);
-        ivec3 iImageCoord0 = ivec3(uvw0 * imageSize(scatteringLUT));
-  ivec3 iImageCoord1 = ivec3(uvw1 * imageSize(scatteringLUT));
-  return vec3(imageLoad(scatteringLUT, iImageCoord0).rgb * (1.0 - lerp) +
-      imageLoad(scatteringLUT, iImageCoord1).rgb * lerp);
+  ivec3 iImageCoord0 = ivec3(uvw0 * ivec3(SCATTERING_SIZE));
+  ivec3 iImageCoord1 = ivec3(uvw1 * ivec3(SCATTERING_SIZE));
+  return vec3(imageLoad(scatteringLUT, iImageCoord0).rgb * (1.0 - lerp) + imageLoad(scatteringLUT, iImageCoord1).rgb * lerp);
 }
 
 vec3 getScatteringMie(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground) {
@@ -283,10 +289,9 @@ vec3 getScatteringMie(float r, float mu, float mu_s, float nu, bool ray_r_mu_int
       uvwz.z, uvwz.w);
   vec3 uvw1 = vec3((tex_x + 1.0 + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
       uvwz.z, uvwz.w);
-        ivec3 iImageCoord0 = ivec3(uvw0 * imageSize(mieLUT));
-  ivec3 iImageCoord1 = ivec3(uvw1 * imageSize(mieLUT));
-  return vec3(imageLoad(mieLUT, iImageCoord0).rgb * (1.0 - lerp) +
-      imageLoad(mieLUT, iImageCoord1).rgb * lerp);
+  ivec3 iImageCoord0 = ivec3(uvw0 * ivec3(SCATTERING_SIZE));
+  ivec3 iImageCoord1 = ivec3(uvw1 * ivec3(SCATTERING_SIZE));
+  return vec3(imageLoad(mieLUT, iImageCoord0).rgb * (1.0 - lerp) + imageLoad(mieLUT, iImageCoord1).rgb * lerp);
 }
 
 vec3 getScattering(
@@ -383,8 +388,9 @@ vec3 computeScatteringDensity(float r, float mu, float mu_s, float nu, int scatt
       float dw = dtheta * dphi * sin(theta);
       float pr2 = rayleighPhaseFunction(nu2);
       float pm2 = miePhaseFunction(miePhaseFunction_g, nu2);
-      //rayleigh_mie += incident_radiance; //* (atm.betaR * exp(-(r - atm.earthRad)/ atm.Hr) * pr2 + atm.betaM * exp(-(r - atm.earthRad) / atm.Hm) * pm2) * dw;
-      rayleigh_mie += incident_radiance * (atm.betaR * exp(-(r - atm.earthRad)/ atm.Hr) * pr2 + atm.betaM * exp(-(r - atm.earthRad) / atm.Hm) * pm2) * dw;
+      //rayleigh_mie = incident_radiance; //* (atm.betaR * exp(-(r - atm.earthRad)/ atm.Hr) * pr2 + atm.betaM * exp(-(r - atm.earthRad) / atm.Hm) * pm2) * dw;
+      //rayleigh_mie += incident_radiance * (atm.betaR * exp(-(r - atm.earthRad)/ atm.Hr) * pr2 + atm.betaM * exp(-(r - atm.earthRad) / atm.Hm) * pm2) * dw;
+      //rayleigh_mie = vec3(pr2, pm2, dw);
       /*
       float rayleigh_density = getProfileDensity(2, r - atm.earthRad);
       float mie_density = getProfileDensity(3, r - atm.earthRad);

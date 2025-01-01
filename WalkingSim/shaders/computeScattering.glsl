@@ -26,7 +26,11 @@ struct atmosphereParams{
     vec3 betaM;
     float padding2;
     float meiG;
+    float padding3;
+    float padding4;
+    float padding5;
     vec3 betaMext;
+    float padding6;
 };
 
 struct densityProfileLayer { 
@@ -207,7 +211,7 @@ void computeSingleScattering(float r, float mu, float mu_s, float nu, bool ray_r
         mie_j = mie_i;
     }
     rayleigh *= atm.betaR;
-    mie *= atm.betaM;
+    mie *= atm.betaMext;
 }
 
 vec4 getScatteringTextureUVWZfromRmuMuSNu(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground){
@@ -278,7 +282,6 @@ void getRMuMuSNuFromScatteringTextureUVWZ(vec4 uvwz, out float r, out float mu, 
     float a = (A - x_mu_s * A) / (1.0 + x_mu_s + A);
     float d = d_min + min(a, A) * (d_max - d_min);
     mu_s = d == 0.0 ? float(1.0) : clampCosine((H * H - d * d) / (2.0 * atm.earthRad * d));
-
     nu = clampCosine(uvwz.x * 2.0 - 1.0);
 }
 

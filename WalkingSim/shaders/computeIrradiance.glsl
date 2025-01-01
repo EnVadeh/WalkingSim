@@ -28,7 +28,11 @@ struct atmosphereParams{
     vec3 betaM;
     float padding2;
     float meiG;
+    float padding3;
+    float padding4;
+    float padding5;
     vec3 betaMext;
+    float padding6;
 };
 
 struct densityProfileLayer { 
