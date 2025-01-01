@@ -82,10 +82,11 @@ void atmosphereLUTs::initializeLUTs() {
 	lutNames.push_back(a5);
 	lutNames.push_back(a6);
 	lutNames.push_back(a7);
+	lutNames.push_back(a8);
 }
 
 void atmosphereLUTs::bind(GLuint shaderID) {
-	for (u8 i = 0; i < 7; i++)
+	for (u8 i = 0; i < 8; i++)
 		CO[i].bind(shaderID, i, lutNames[i]);
 }
 
@@ -134,8 +135,8 @@ void atmosphereLUTs::createScatteringLUT() {
 		CO[i].setup(SCATTERING_TEXTURE_WIDTH, SCATTERING_TEXTURE_HEIGHT, SCATTERING_TEXTURE_DEPTH, i); // 1 = scatteringLUT, 2 = rayleighDeltaLUT, 3 = mieDeltaLUT
 	CO[4].setup(IRRADIANCE_TEXTURE_WIDTH, IRRADIANCE_TEXTURE_HEIGHT, 4); // 4 = directIrradiance
 	CO[5].setup(SCATTERING_TEXTURE_WIDTH, SCATTERING_TEXTURE_HEIGHT, SCATTERING_TEXTURE_DEPTH, 5); // 5 = scatteringDesntiyLUT
-	CO[6].setup(SCATTERING_TEXTURE_WIDTH, SCATTERING_TEXTURE_HEIGHT, SCATTERING_TEXTURE_DEPTH, 6); // 6 = multiScatteringLUT
-	
+	CO[6].setup(IRRADIANCE_TEXTURE_WIDTH, IRRADIANCE_TEXTURE_HEIGHT, 6); // 6 = indirectIrradiance
+	CO[7].setup(SCATTERING_TEXTURE_WIDTH, SCATTERING_TEXTURE_HEIGHT, SCATTERING_TEXTURE_DEPTH, 7); // 7 = multiScatteringLUT
 
 }
 //
