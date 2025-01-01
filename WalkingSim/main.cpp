@@ -82,6 +82,8 @@ int main() {
 	GLuint scatDensLUT = fourthCompute.createShader();
 	shader fifthCompute("shaders/computeIndirectIrradiance.glsl");
 	GLuint indirectLUT = fifthCompute.createShader();
+	shader sixthCompute("shaders/computeMultiScattering.glsl");
+	GLuint multiLUT = sixthCompute.createShader();
 
 	shader test("shaders/testVS.glsl", "shaders/testFS.glsl");
 	GLuint testShader = test.createShader();
@@ -131,13 +133,14 @@ int main() {
 		glUseProgram(scatDensLUT);
 		glDispatchCompute(256 / 16, 128 / 16, 32 / 4);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	}
-	for (i = 2; i < 4; i++) {
 		setUniform(indirectLUT, "scatteringORDER", i);
 		glUseProgram(indirectLUT);
 		glDispatchCompute(64 / 16, 16 / 16, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
+		glUseProgram(multiLUT);
+		glDispatchCompute(256 / 16, 128 / 16, 32 / 4);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	//auto stop = std::chrono::high_resolution_clock::now();
 	//auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 	//std::cout << "The time taken for transmittance to be claculated: " << duration.count() << std::endl;
