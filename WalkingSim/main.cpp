@@ -80,8 +80,8 @@ int main() {
 	GLuint irrLUT = thirdCompute.createShader();
 	shader fourthCompute("shaders/computeScatteringDensity.glsl");
 	GLuint scatDensLUT = fourthCompute.createShader();
-	shader fifthCompute("shaders/computeMultiScattering.glsl");
-	GLuint multiScatLUT = fifthCompute.createShader();
+	shader fifthCompute("shaders/computeIndirectIrradiance.glsl");
+	GLuint indirectLUT = fifthCompute.createShader();
 
 	shader test("shaders/testVS.glsl", "shaders/testFS.glsl");
 	GLuint testShader = test.createShader();
@@ -130,6 +130,12 @@ int main() {
 		setUniform(scatDensLUT, "scatteringORDER", i);
 		glUseProgram(scatDensLUT);
 		glDispatchCompute(256 / 16, 128 / 16, 32 / 4);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	}
+	for (i = 2; i < 4; i++) {
+		setUniform(indirectLUT, "scatteringORDER", i);
+		glUseProgram(indirectLUT);
+		glDispatchCompute(64 / 16, 16 / 16, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 	//auto stop = std::chrono::high_resolution_clock::now();

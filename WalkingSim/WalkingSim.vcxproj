@@ -154,7 +154,7 @@
     <ClInclude Include="include\light.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\computeMultiScattering.glsl" />
+    <None Include="shaders\computeIndirectIrradiance.glsl" />
     <None Include="shaders\computeIrradiance.glsl" />
     <None Include="shaders\computeScattering.glsl" />
     <None Include="shaders\computeScatteringDensity.glsl" />
