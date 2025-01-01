@@ -12,6 +12,10 @@ const int SCATTERING_TEXTURE_MU_S_SIZE = 32;
 const int SCATTERING_TEXTURE_NU_SIZE = 8;
 const int IRRADIANCE_TEXTURE_WIDTH = 64;
 const int IRRADIANCE_TEXTURE_HEIGHT = 16;
+const int SCATTERING_TEXTURE_WIDTH = SCATTERING_TEXTURE_MU_S_SIZE * SCATTERING_TEXTURE_NU_SIZE;
+const int SCATTERING_TEXTURE_HEIGHT = SCATTERING_TEXTURE_MU_SIZE;
+const int SCATTERING_TEXTURE_DEPTH = SCATTERING_TEXTURE_R_SIZE;
+const ivec3 SCATTERING_SIZE = ivec3(SCATTERING_TEXTURE_WIDTH, SCATTERING_TEXTURE_HEIGHT, SCATTERING_TEXTURE_DEPTH);
 const float EarthRayleighScaleHeight = 8.0f;
 const float EarthMieScaleHeight = 1.2f;
 const float miePhaseFunction_g = 0.80;
@@ -172,10 +176,9 @@ vec3 getScatteringRayleigh(float r, float mu, float mu_s, float nu, bool ray_r_m
       uvwz.z, uvwz.w);
   vec3 uvw1 = vec3((tex_x + 1.0 + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
       uvwz.z, uvwz.w);
-  ivec3 iImageCoord0 = ivec3(uvw0 * imageSize(rayleighLUT));
-  ivec3 iImageCoord1 = ivec3(uvw1 * imageSize(rayleighLUT));
-  return vec3(imageLoad(rayleighLUT, iImageCoord0).rgb * (1.0 - lerp) +
-      imageLoad(rayleighLUT, iImageCoord1).rgb * lerp);
+  ivec3 iImageCoord0 = ivec3(uvw0 * ivec3(SCATTERING_SIZE));
+  ivec3 iImageCoord1 = ivec3(uvw1 * ivec3(SCATTERING_SIZE));
+  return vec3(imageLoad(rayleighLUT, iImageCoord0).rgb * (1.0 - lerp) + imageLoad(rayleighLUT, iImageCoord1).rgb * lerp);
 }
 
 vec3 getScatteringDelta(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground) {
@@ -187,10 +190,9 @@ vec3 getScatteringDelta(float r, float mu, float mu_s, float nu, bool ray_r_mu_i
       uvwz.z, uvwz.w);
   vec3 uvw1 = ivec3((tex_x + 1.0 + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
       uvwz.z, uvwz.w);
-        ivec3 iImageCoord0 = ivec3(uvw0 * imageSize(scatteringLUT));
-  ivec3 iImageCoord1 = ivec3(uvw1 * imageSize(scatteringLUT));
-  return vec3(imageLoad(scatteringLUT, iImageCoord0).rgb * (1.0 - lerp) +
-      imageLoad(scatteringLUT, iImageCoord1).rgb * lerp);
+  ivec3 iImageCoord0 = ivec3(uvw0 * ivec3(SCATTERING_SIZE));
+  ivec3 iImageCoord1 = ivec3(uvw1 * ivec3(SCATTERING_SIZE));
+  return vec3(imageLoad(scatteringLUT, iImageCoord0).rgb * (1.0 - lerp) + imageLoad(scatteringLUT, iImageCoord1).rgb * lerp);
 }
 
 vec3 getScatteringMie(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground) {
@@ -202,10 +204,9 @@ vec3 getScatteringMie(float r, float mu, float mu_s, float nu, bool ray_r_mu_int
       uvwz.z, uvwz.w);
   vec3 uvw1 = vec3((tex_x + 1.0 + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
       uvwz.z, uvwz.w);
-        ivec3 iImageCoord0 = ivec3(uvw0 * imageSize(mieLUT));
-  ivec3 iImageCoord1 = ivec3(uvw1 * imageSize(mieLUT));
-  return vec3(imageLoad(mieLUT, iImageCoord0).rgb * (1.0 - lerp) +
-      imageLoad(mieLUT, iImageCoord1).rgb * lerp);
+  ivec3 iImageCoord0 = ivec3(uvw0 * ivec3(SCATTERING_SIZE));
+  ivec3 iImageCoord1 = ivec3(uvw1 * ivec3(SCATTERING_SIZE));
+  return vec3(imageLoad(mieLUT, iImageCoord0).rgb * (1.0 - lerp) + imageLoad(mieLUT, iImageCoord1).rgb * lerp);
 }
 
 vec3 getScattering(
@@ -228,19 +229,17 @@ vec3 computeIndirectIrradiance(float r, float mu_s, int scattering_order) {
   const int SAMPLE_COUNT = 32; 
   const float dphi = PI / float(SAMPLE_COUNT);
   const float dtheta = PI / float(SAMPLE_COUNT);
-
   vec3 result = vec3(0.0, 0.0, 0.0);
   vec3 omega_s = vec3(sqrt(1.0 - mu_s * mu_s), 0.0, mu_s);
-  for (int j = 0; j < SAMPLE_COUNT / 2; ++j) {
-    float theta = (float(j) + 0.5) * dtheta;
-    for (int i = 0; i < 2 * SAMPLE_COUNT; ++i) {
-      float phi = (float(i) + 0.5) * dphi;
-      vec3 omega =
-          vec3(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
+  for (int iphi = 0; iphi < SAMPLE_COUNT / 2; ++iphi) {
+    float phi = (float(iphi) + 0.5) * dphi;
+    for (int itheta = 0; itheta < 2 * SAMPLE_COUNT; ++itheta) {
+      float theta = (float(itheta) + 0.5) * dtheta;
+      vec3 omega = vec3(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
       float domega = (dtheta) * (dphi) * sin(theta);
-
       float nu = dot(omega, omega_s);
-      result += getScattering(r, omega.z, mu_s, nu, false /* ray_r_theta_intersects_ground */,scattering_order);
+      float dw = dtheta * dphi * sin(theta);
+      result += getScattering(r, omega.z, mu_s, nu, false /* ray_r_theta_intersects_ground */,scattering_order) * dw * omega.z;
     }
   }
   return result;
@@ -262,7 +261,7 @@ vec3 computeIndirectIrradianceTexture(vec2 uv, int ORDER){
 
 void main() {
     ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xyz);
-    ivec2 size = imageSize(irradianceLUT);
+    ivec2 size = ivec2(IRRADIANCE_TEXTURE_WIDTH, IRRADIANCE_TEXTURE_HEIGHT);
     vec2 frag_coord = vec2(pixelCoords)/vec2(size);
     vec3 irradiance = computeIndirectIrradianceTexture(frag_coord, scatteringORDER);
     imageStore(irradianceLUT, pixelCoords, vec4(irradiance, 1));

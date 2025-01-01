@@ -125,7 +125,7 @@ vec2 getTransmittanceTextureUVfromRMu(float r, float mu){ //brunetone's implemen
 
 vec3 GetTransmittanceToTopAtmosphereBoundary(float r, float mu) {
   vec2 uv = getTransmittanceTextureUVfromRMu(r, mu);
-  ivec2 texelCoords = ivec2(uv * vec2(imageSize(transmittanceLUT)));
+  ivec2 texelCoords = ivec2(uv * ivec2(TRANSMITTANCE_TEXTURE_WIDTH, TRANSMITTANCE_TEXTURE_HEIGHT));
   return vec3(imageLoad(transmittanceLUT, texelCoords).rgb);
 }
 
@@ -312,7 +312,6 @@ void main() {
     vec3 mie;
     computeSingleScatteringTexture(frag_coord, rayleigh, mie); //need layer for 3d coordinates
     vec4 scattering = vec4(rayleigh.rgb, mie.r);
-    ivec2 fakeUV = pixelCoords.xy;
     imageStore(scatteringLUT, pixelCoords, vec4(rayleigh, mie.r));
     imageStore(rayleighLUT, pixelCoords, vec4(rayleigh, 0.0));
     imageStore(mieLUT, pixelCoords, vec4(mie, 0.0));

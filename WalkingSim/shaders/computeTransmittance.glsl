@@ -131,7 +131,7 @@ vec2 getTransmittanceTextureUVfromRMu(float r, float mu){ //brunetone's implemen
     float d_max = rho + H;
     float x_mu = (d - d_min) / (d_max - d_min);
     float x_r = rho / H;
-    ivec2 size = imageSize(transmittanceLUT);
+    ivec2 size = ivec2(TRANSMITTANCE_TEXTURE_WIDTH, TRANSMITTANCE_TEXTURE_HEIGHT);
     return vec2(getTextureCoordFromUnitRange(x_mu, size.x), getTextureCoordFromUnitRange(x_r, size.y));
 
 }
@@ -160,7 +160,7 @@ vec3 computeTransmittanceToTopAtmosphereBoundaryTexture(vec2 frag_coord){
 
 void main() {
     ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
-    ivec2 size = imageSize(transmittanceLUT);
+    ivec2 size = ivec2(TRANSMITTANCE_TEXTURE_WIDTH, TRANSMITTANCE_TEXTURE_HEIGHT);
     if(pixelCoords.x > size.x || pixelCoords.y > size.y){
         return;
     }

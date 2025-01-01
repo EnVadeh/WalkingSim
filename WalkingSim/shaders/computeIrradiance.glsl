@@ -92,7 +92,7 @@ vec2 getTransmittanceTextureUVfromRMu(float r, float mu){ //brunetone's implemen
 
 vec3 getTransmittanceToTopAtmosphereBoundary(float r, float mu) {
     vec2 uv = getTransmittanceTextureUVfromRMu(r, mu);
-    ivec2 texelCoords = ivec2(uv * vec2(imageSize(transmittanceLUT)));
+    ivec2 texelCoords = ivec2(uv * ivec2(TRANSMITTANCE_W, TRANSMITTANCE_H));
     return imageLoad(transmittanceLUT, texelCoords).rgb;
 }
 

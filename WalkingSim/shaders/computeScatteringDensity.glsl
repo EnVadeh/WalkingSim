@@ -145,13 +145,13 @@ vec2 getTransmittanceTextureUVfromRMu(float r, float mu){ //brunetone's implemen
     float d_max = rho + H;
     float x_mu = (d - d_min) / (d_max - d_min);
     float x_r = rho / H;
-    ivec2 size = imageSize(transmittanceLUT);
+    ivec2 size = ivec2(TRANSMITTANCE_TEXTURE_WIDTH, TRANSMITTANCE_TEXTURE_HEIGHT);
     return vec2(getTextureCoordFromUnitRange(x_mu, TRANSMITTANCE_TEXTURE_WIDTH), getTextureCoordFromUnitRange(x_r, TRANSMITTANCE_TEXTURE_HEIGHT));
 }
 
 vec3 getTransmittanceToTopAtmosphereBoundary(float r, float mu) {
   vec2 uv = getTransmittanceTextureUVfromRMu(r, mu);
-  ivec2 texelCoords = ivec2(uv * vec2(imageSize(transmittanceLUT)));
+  ivec2 texelCoords = ivec2(uv * ivec2(TRANSMITTANCE_TEXTURE_WIDTH, TRANSMITTANCE_TEXTURE_HEIGHT));
   return vec3(imageLoad(transmittanceLUT, texelCoords).rgb);
 }
 
@@ -321,7 +321,7 @@ vec2 getIrradianceTextureUvFromRMuS(float r, float mu_s) {
 
 vec3 getIrradiance(float r, float mu_s) {
   vec2 uv = getIrradianceTextureUvFromRMuS(r, mu_s);
-  ivec2 texelCoords = ivec2(uv * vec2(imageSize(deltaIrradianceLUT)));
+  ivec2 texelCoords = ivec2(uv * ivec2(IRRADIANCE_TEXTURE_WIDTH, IRRADIANCE_TEXTURE_HEIGHT));
   return vec3(imageLoad(deltaIrradianceLUT, texelCoords).rgb);
 }
 
@@ -385,12 +385,11 @@ vec3 computeScatteringDensity(float r, float mu, float mu_s, float nu, int scatt
       // coefficient, and the phase function for directions omega and omega_i
       // (all this summed over all particle types, i.e. Rayleigh and Mie).
       float nu2 = dot(omega, omega_i);
-      float dw = dtheta * dphi * sin(theta);
+      float dw = dtheta * dphi * sin(theta); //this can be negative btw.. which is why doing += may make it lesser lol
       float pr2 = rayleighPhaseFunction(nu2);
       float pm2 = miePhaseFunction(miePhaseFunction_g, nu2);
-      //rayleigh_mie = incident_radiance; //* (atm.betaR * exp(-(r - atm.earthRad)/ atm.Hr) * pr2 + atm.betaM * exp(-(r - atm.earthRad) / atm.Hm) * pm2) * dw;
-      //rayleigh_mie += incident_radiance * (atm.betaR * exp(-(r - atm.earthRad)/ atm.Hr) * pr2 + atm.betaM * exp(-(r - atm.earthRad) / atm.Hm) * pm2) * dw;
-      //rayleigh_mie = vec3(pr2, pm2, dw);
+      rayleigh_mie += incident_radiance * (atm.betaR * exp(-(r - atm.earthRad)/ atm.Hr) * pr2 + atm.betaM * exp(-(r - atm.earthRad) / atm.Hm) * pm2) * dw;
+      //rayleigh_mie += incident_radiance * (atm.betaR * exp(-(r - atm.earthRad)/ atm.Hr)+ atm.betaM * exp(-(r - atm.earthRad) / atm.Hm)) * dw;
       /*
       float rayleigh_density = getProfileDensity(2, r - atm.earthRad);
       float mie_density = getProfileDensity(3, r - atm.earthRad);
