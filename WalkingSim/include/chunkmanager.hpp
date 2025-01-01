@@ -57,7 +57,7 @@ private:
 	std::string a5 = "deltaIrradianceLUT"; //as eric bruneton paper: 16 x 64 //cehck again not compeltely sure
 	std::string a6 = "scatteringDensityLUT";
 	std::string a7 = "irradianceLUT";
-	std::string a8 = "multipleScatteringLUT";
+	std::string a8 = "multiScatteringLUT";
 	
 
 	static const int TRANSMITTANCE_W = 256; 
