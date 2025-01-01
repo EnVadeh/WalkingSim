@@ -6,8 +6,8 @@ uniform int scatteringORDER;
 
 const float SUN_ANGULAR_RADIUS = 0.004675; // in radians
 const vec3 solar_irradiance = vec3(1.5f);
-const int TRANSMITTANCE_W = 256; 
-const int TRANSMITTANCE_H = 64;
+const int TRANSMITTANCE_TEXTURE_WIDTH = 256; 
+const int TRANSMITTANCE_TEXTURE_HEIGHT = 64;
 const int SCATTERING_TEXTURE_R_SIZE = 32;
 const int SCATTERING_TEXTURE_MU_SIZE = 128;
 const int SCATTERING_TEXTURE_MU_S_SIZE = 32;
@@ -16,7 +16,7 @@ const int IRRADIANCE_TEXTURE_WIDTH = 64;
 const int IRRADIANCE_TEXTURE_HEIGHT = 16;
 const float EarthRayleighScaleHeight = 8.0f;
 const float EarthMieScaleHeight = 1.2f;
-const float miePhaseFunction_g = 0.85; //assymetry parameter for larger areosols
+const float miePhaseFunction_g = 0.80; //assymetry parameter for larger areosols
 const float PI = 3.1415;
 const float mu_s_min = -0.2076; // I am confusion
 
@@ -138,7 +138,7 @@ vec2 getTransmittanceTextureUVfromRMu(float r, float mu){ //brunetone's implemen
     float x_mu = (d - d_min) / (d_max - d_min);
     float x_r = rho / H;
     ivec2 size = imageSize(transmittanceLUT);
-    return vec2(getTextureCoordFromUnitRange(x_mu, TRANSMITTANCE_W), getTextureCoordFromUnitRange(x_r, TRANSMITTANCE_H));
+    return vec2(getTextureCoordFromUnitRange(x_mu, TRANSMITTANCE_TEXTURE_WIDTH), getTextureCoordFromUnitRange(x_r, TRANSMITTANCE_TEXTURE_HEIGHT));
 }
 
 vec3 getTransmittanceToTopAtmosphereBoundary(float r, float mu) {
@@ -162,6 +162,41 @@ vec3 getTransmittance(float r, float  mu, float d, bool ray_r_mu_intersects_grou
         getTransmittanceToTopAtmosphereBoundary(r_d, mu_d),
         vec3(1.0, 1.0, 1.0));
   }
+}
+
+vec4 getScatteringTextureUVWZfromRmuMuSNu(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground){
+    float H = sqrt(atm.atmosphereRad * atm.atmosphereRad - atm.earthRad * atm.earthRad);
+    float rho = safeSqrt(r * r - atm.earthRad * atm.earthRad);
+    float u_r = getTextureCoordFromUnitRange(rho/H, SCATTERING_TEXTURE_R_SIZE);
+    float r_mu = r * mu; 
+    float discriminant = r_mu * r_mu - r * r + atm.earthRad * atm.earthRad;//discriminant of the intersection of ray r,mu with the ground
+    float u_mu;
+    if(ray_r_mu_intersects_ground){
+        // Distance to the ground for the ray (r,mu), and its minimum and maximum
+        // values over all mu - obtained for (r,-1) and (r,mu_horizon).
+        float d = -r_mu - safeSqrt(discriminant);
+        float d_min = r - atm.earthRad;
+        float d_max = rho;
+        u_mu = 0.5 - 0.5 * getTextureCoordFromUnitRange(d_max == d_min ? 0.0 : (d - d_min) / (d_max - d_min), SCATTERING_TEXTURE_MU_SIZE / 2);
+    }
+    else{
+        // Distance to the top atmosphere boundary for the ray (r,mu), and its
+        // minimum and maximum values over all mu - obtained for (r,1) and
+        // (r,mu_horizon).
+        float d = -r_mu + safeSqrt(discriminant + H * H);
+        float d_min = atm.atmosphereRad - r;
+        float d_max = rho + H;
+        u_mu = 0.5 + 0.5 * getTextureCoordFromUnitRange((d - d_min) / (d_max - d_min), SCATTERING_TEXTURE_MU_SIZE / 2);
+    }
+    float d = distanceToTopAtmosphereBoundary(atm.earthRad, mu_s);
+    float d_min = atm.atmosphereRad - atm.earthRad;
+    float d_max = H;
+    float a = (d - d_min) / (d_max - d_min);
+    float A = -2.0 * mu_s_min * atm.earthRad / (d_max - d_min);
+    float u_mu_s = getTextureCoordFromUnitRange(max(1.0 - a / A, 0.0) / (1.0 + a), SCATTERING_TEXTURE_MU_S_SIZE);
+
+    float u_nu = (nu + 1.0) / 2.0;
+    return vec4(u_nu, u_mu_s, u_mu, u_r);
 }
 
 void getRMuMuSNuFromScatteringTextureUVWZ(vec4 uvwz, out float r, out float mu, out float mu_s, out float nu, out bool ray_r_mu_intersects_ground){
@@ -197,42 +232,7 @@ void getRMuMuSNuFromScatteringTextureUVWZ(vec4 uvwz, out float r, out float mu, 
     float a = (A - x_mu_s * A) / (1.0 + x_mu_s + A);
     float d = d_min + min(a, A) * (d_max - d_min);
     mu_s = d == 0.0 ? float(1.0) : clampCosine((H * H - d * d) / (2.0 * atm.earthRad * d));
-
     nu = clampCosine(uvwz.x * 2.0 - 1.0);
-}
-
-vec4 getScatteringTextureUVWZfromRmuMuSNu(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground){
-    float H = sqrt(atm.atmosphereRad * atm.atmosphereRad - atm.earthRad * atm.earthRad);
-    float rho = safeSqrt(r * r - atm.earthRad * atm.earthRad);
-    float u_r = getTextureCoordFromUnitRange(rho/H, SCATTERING_TEXTURE_R_SIZE);
-    float r_mu = r * mu; 
-    float discriminant = r_mu * r_mu - r * r + atm.earthRad * atm.earthRad;//discriminant of the intersection of ray r,mu with the ground
-    float u_mu;
-    if(ray_r_mu_intersects_ground){
-        // Distance to the ground for the ray (r,mu), and its minimum and maximum
-        // values over all mu - obtained for (r,-1) and (r,mu_horizon).
-        float d = -r_mu - safeSqrt(discriminant);
-        float d_min = r - atm.earthRad;
-        float d_max = rho;
-        u_mu = 0.5 - 0.5 * getTextureCoordFromUnitRange(d_max == d_min ? 0.0 : (d - d_min) / (d_max - d_min), SCATTERING_TEXTURE_MU_SIZE / 2);
-    }
-    else{
-        // Distance to the top atmosphere boundary for the ray (r,mu), and its
-        // minimum and maximum values over all mu - obtained for (r,1) and
-        // (r,mu_horizon).
-        float d = -r_mu + safeSqrt(discriminant + H * H);
-        float d_min = atm.atmosphereRad - r;
-        float d_max = rho + H;
-        u_mu = 0.5 + 0.5 * getTextureCoordFromUnitRange((d - d_min) / (d_max - d_min), SCATTERING_TEXTURE_MU_SIZE / 2);
-    }
-    float d = distanceToTopAtmosphereBoundary(atm.earthRad, mu_s);
-    float d_min = atm.atmosphereRad - atm.earthRad;
-    float d_max = H;
-    float a = (d - d_min) / (d_max - d_min);
-    float A = -2.0 * mu_s_min * atm.earthRad / (d_max - d_min);
-    float u_mu_s = getTextureCoordFromUnitRange(max(1.0 - a / A, 0.0) / (1.0 + a), SCATTERING_TEXTURE_MU_S_SIZE);
-    float u_nu = (nu + 1.0) / 2.0;
-    return vec4(u_nu, u_mu_s, u_mu, u_r);
 }
 
 void getRMuMuSNuFromScatteringTextureFragCoord(vec3 frag_coord, out float r, out float mu, out float mu_s, out float nu, out bool ray_r_mu_intersects_ground){
@@ -253,10 +253,10 @@ vec3 getScatteringRayleigh(float r, float mu, float mu_s, float nu, bool ray_r_m
       uvwz.z, uvwz.w);
   vec3 uvw1 = vec3((tex_x + 1.0 + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
       uvwz.z, uvwz.w);
-  ivec3 texelCoords0 = ivec3(uvw0 * vec3(imageSize(rayleighLUT))); //the scatteringLUT will be different...
-  ivec3 texelCoords1 = ivec3(uvw1 * vec3(imageSize(rayleighLUT)));
-  return vec3(imageLoad(rayleighLUT, texelCoords0).rgb * (1.0 - lerp) +
-      imageLoad(rayleighLUT, texelCoords1).rgb * lerp);
+  ivec3 iImageCoord0 = ivec3(uvw0 * imageSize(rayleighLUT));
+  ivec3 iImageCoord1 = ivec3(uvw1 * imageSize(rayleighLUT));
+  return vec3(imageLoad(rayleighLUT, iImageCoord0).rgb * (1.0 - lerp) +
+      imageLoad(rayleighLUT, iImageCoord1).rgb * lerp);
 }
 
 vec3 getScatteringDelta(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground) {
@@ -266,12 +266,12 @@ vec3 getScatteringDelta(float r, float mu, float mu_s, float nu, bool ray_r_mu_i
   float lerp = tex_coord_x - tex_x;
   vec3 uvw0 = vec3((tex_x + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
       uvwz.z, uvwz.w);
-  vec3 uvw1 = vec3((tex_x + 1.0 + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
+  vec3 uvw1 = ivec3((tex_x + 1.0 + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
       uvwz.z, uvwz.w);
-  ivec3 texelCoords0 = ivec3(uvw0 * vec3(imageSize(rayleighLUT))); //the scatteringLUT will be different...
-  ivec3 texelCoords1 = ivec3(uvw1 * vec3(imageSize(rayleighLUT)));
-  return vec3(imageLoad(scatteringLUT, texelCoords0).rgb * (1.0 - lerp) +
-      imageLoad(scatteringLUT, texelCoords1).rgb * lerp);
+        ivec3 iImageCoord0 = ivec3(uvw0 * imageSize(scatteringLUT));
+  ivec3 iImageCoord1 = ivec3(uvw1 * imageSize(scatteringLUT));
+  return vec3(imageLoad(scatteringLUT, iImageCoord0).rgb * (1.0 - lerp) +
+      imageLoad(scatteringLUT, iImageCoord1).rgb * lerp);
 }
 
 vec3 getScatteringMie(float r, float mu, float mu_s, float nu, bool ray_r_mu_intersects_ground) {
@@ -279,14 +279,14 @@ vec3 getScatteringMie(float r, float mu, float mu_s, float nu, bool ray_r_mu_int
   float tex_coord_x = uvwz.x * float(SCATTERING_TEXTURE_NU_SIZE - 1);
   float tex_x = floor(tex_coord_x);
   float lerp = tex_coord_x - tex_x;
-  vec3 uvw0 = vec3((tex_x + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
+ vec3 uvw0 = vec3((tex_x + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
       uvwz.z, uvwz.w);
   vec3 uvw1 = vec3((tex_x + 1.0 + uvwz.y) / float(SCATTERING_TEXTURE_NU_SIZE),
       uvwz.z, uvwz.w);
-  ivec3 texelCoords0 = ivec3(uvw0 * vec3(imageSize(mieLUT))); //the scatteringLUT will be different...
-  ivec3 texelCoords1 = ivec3(uvw1 * vec3(imageSize(mieLUT)));
-  return vec3(imageLoad(mieLUT, texelCoords0).rgb * (1.0 - lerp) +
-      imageLoad(mieLUT, texelCoords1).rgb * lerp);
+        ivec3 iImageCoord0 = ivec3(uvw0 * imageSize(mieLUT));
+  ivec3 iImageCoord1 = ivec3(uvw1 * imageSize(mieLUT));
+  return vec3(imageLoad(mieLUT, iImageCoord0).rgb * (1.0 - lerp) +
+      imageLoad(mieLUT, iImageCoord1).rgb * lerp);
 }
 
 vec3 getScattering(
@@ -295,7 +295,6 @@ vec3 getScattering(
     int scattering_order) {
 
   if (scattering_order == 1) {
-
     vec3 rayleigh = getScatteringRayleigh(r, mu, mu_s, nu, ray_r_mu_intersects_ground);
     vec3 mie = getScatteringMie(r, mu, mu_s, nu, ray_r_mu_intersects_ground);
     return rayleigh * rayleighPhaseFunction(nu) +
@@ -356,7 +355,7 @@ vec3 computeScatteringDensity(float r, float mu, float mu_s, float nu, int scatt
           distanceToBottomAtmosphereBoundary(r, cos_theta);
       transmittance_to_ground =
           getTransmittance(r, cos_theta, distance_to_ground, true /* ray_intersects_ground */);
-      ground_albedo = vec3(0.1);//can change this in the future maybe
+      ground_albedo = vec3(0.3);//can change this in the future maybe
     }
     for (int samp = 0; samp < 2 * SAMPLE_COUNT; ++samp) { //had to change sample variable to samp because new GLSL
       float  phi = (float(samp) + 0.5) * dphi;
@@ -368,33 +367,24 @@ vec3 computeScatteringDensity(float r, float mu, float mu_s, float nu, int scatt
       // (n-1)-th order:
       float  nu1 = dot(omega_s, omega_i);
       vec3 incident_radiance = getScattering(r, omega_i.z, mu_s, nu1, ray_r_theta_intersects_ground, scattering_order - 1);
-          ivec3 pixelCoords = ivec3(gl_GlobalInvocationID.xyz);
-        imageStore(scatteringDensityLUT, pixelCoords, vec4(incident_radiance, 0));
-
       // and of the contribution from the light paths with n-1 bounces and whose
       // last bounce is on the ground. This contribution is the product of the
       // transmittance to the ground, the ground albedo, the ground BRDF, and
       // the irradiance received on the ground after n-2 bounces.
-      vec3 ground_normal =
-          normalize(zenith_direction * r + omega_i * distance_to_ground);
-      vec3 ground_irradiance = getIrradiance(atm.earthRad,
-          dot(ground_normal, omega_s));
-      incident_radiance += transmittance_to_ground *
-          ground_albedo * (1.0 / (PI)) * ground_irradiance;
-
+      // vec3 ground_normal = normalize(zenith_direction * r + omega_i * distance_to_ground);
+      vec3 ground_normal = (vec3(0, 0, r) + distance_to_ground * omega_i) / atm.earthRad;
+      vec3 ground_irradiance = getIrradiance(atm.earthRad, dot(ground_normal, omega_s));
+      incident_radiance += transmittance_to_ground * ground_albedo * (1.0 / (PI)) * ground_irradiance;
       // The radiance finally scattered from direction omega_i towards direction
       // -omega is the product of the incident radiance, the scattering
       // coefficient, and the phase function for directions omega and omega_i
       // (all this summed over all particle types, i.e. Rayleigh and Mie).
       float nu2 = dot(omega, omega_i);
-      float rayleigh_density = getProfileDensity(2, r - atm.earthRad);
-      float mie_density = getProfileDensity(3, r - atm.earthRad);
-      rayleigh_mie += incident_radiance * (
-          atm.betaR * rayleigh_density *
-              rayleighPhaseFunction(nu2) +
-          atm.betaM * mie_density *
-              miePhaseFunction(miePhaseFunction_g, nu2)) *
-          domega_i;
+      float dw = dtheta * dphi * sin(theta);
+      float pr2 = rayleighPhaseFunction(nu2);
+      float pm2 = miePhaseFunction(miePhaseFunction_g, nu2);
+      //rayleigh_mie += incident_radiance; //* (atm.betaR * exp(-(r - atm.earthRad)/ atm.Hr) * pr2 + atm.betaM * exp(-(r - atm.earthRad) / atm.Hm) * pm2) * dw;
+      rayleigh_mie += incident_radiance * (atm.betaR * exp(-(r - atm.earthRad)/ atm.Hr) * pr2 + atm.betaM * exp(-(r - atm.earthRad) / atm.Hm) * pm2) * dw;
     }
   }
   return rayleigh_mie;
@@ -415,5 +405,5 @@ void main() {
     ivec3 pixelCoords = ivec3(gl_GlobalInvocationID.xyz);
     vec3 frag_coord = vec3(pixelCoords);
     vec3 scattering_density = computeScatteringDensityTexture(vec3(frag_coord.xy, frag_coord.z + 0.5), scatteringORDER); //3 = scattering order, I have to go from 2-4... find an intuitive way to run this computeShader
-    //imageStore(scatteringDensityLUT, pixelCoords, vec4(scattering_density, 0));
+    imageStore(scatteringDensityLUT, pixelCoords, vec4(scattering_density, 0));
 }
