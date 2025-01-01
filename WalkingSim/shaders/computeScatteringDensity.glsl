@@ -385,6 +385,16 @@ vec3 computeScatteringDensity(float r, float mu, float mu_s, float nu, int scatt
       float pm2 = miePhaseFunction(miePhaseFunction_g, nu2);
       //rayleigh_mie += incident_radiance; //* (atm.betaR * exp(-(r - atm.earthRad)/ atm.Hr) * pr2 + atm.betaM * exp(-(r - atm.earthRad) / atm.Hm) * pm2) * dw;
       rayleigh_mie += incident_radiance * (atm.betaR * exp(-(r - atm.earthRad)/ atm.Hr) * pr2 + atm.betaM * exp(-(r - atm.earthRad) / atm.Hm) * pm2) * dw;
+      /*
+      float rayleigh_density = getProfileDensity(2, r - atm.earthRad);
+      float mie_density = getProfileDensity(3, r - atm.earthRad);
+      rayleigh_mie += incident_radiance * (
+          atm.betaR * rayleigh_density *
+              rayleighPhaseFunction(nu2) +
+          atm.betaM * mie_density *
+              miePhaseFunction(miePhaseFunction_g, nu2)) *
+          domega_i;
+      */
     }
   }
   return rayleigh_mie;
