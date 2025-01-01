@@ -157,8 +157,7 @@ vec3 computeTransmittanceToTopAtmosphereBoundaryTexture(vec2 frag_coord){
 void main() {
     ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
     ivec2 size = imageSize(transmittanceLUT);
-
-    if(pixelCoords.x >= size.x || pixelCoords.y >= size.y){
+    if(pixelCoords.x > size.x || pixelCoords.y > size.y){
         return;
     }
     vec2 frag_coord = vec2(pixelCoords);

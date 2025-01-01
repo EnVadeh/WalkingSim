@@ -22,8 +22,8 @@ public:
 };
 
 struct atmosphereParams { //Precomputed Atmospheric Scattering Eric Bruneton, Fabrice Neyret
-	float earthRad = 6371e3f;
-	float atmosphereRad = 6471e3f; //100 km atmosphere
+	float earthRad = 6360e3f;//6371e3f;
+	float atmosphereRad = 6420e3f;//6471e3f; //100 km atmosphere
 	float Hr = 8000.0f; //Rayleight scale height //How the density of air molecules with height
 	float Hm = 1200.0f; //Mei scale height //How the density of aerosols scales with height
 	//--16 byte alignment--//
