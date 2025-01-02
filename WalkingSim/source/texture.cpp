@@ -53,8 +53,8 @@ void computeOutput::setup(size_t width, size_t height, u8 unit) {
 	glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTextureStorage2D(texture, 1, GL_RGBA16F, width, height); //level for this is how many mipmaps
-	glBindImageTexture(unit, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F); //what mip level to load :) 
+	glTextureStorage2D(texture, 1, GL_RGBA32F, width, height); //level for this is how many mipmaps
+	glBindImageTexture(unit, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F); //what mip level to load :) 
 }
 
 void computeOutput::setup(size_t width, size_t height, size_t depth, u8 unit) {
@@ -64,8 +64,8 @@ void computeOutput::setup(size_t width, size_t height, size_t depth, u8 unit) {
 	glTextureParameteri(texture, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTextureStorage3D(texture, 1, GL_RGBA16F, width, height, depth); //level for this is how many mipmaps
-	glBindImageTexture(unit, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F); //what mip level to load :) 
+	glTextureStorage3D(texture, 1, GL_RGBA32F, width, height, depth); //level for this is how many mipmaps
+	glBindImageTexture(unit, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F); //what mip level to load :) 
 
 }
 
