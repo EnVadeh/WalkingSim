@@ -60,13 +60,13 @@ layout(std140, binding = 2) uniform densityProfileUBO {
     densityProfileLayer dp[4];//first 2 are atmosphere layers, then rayleigh, and mie
 };
 
-layout(rgba16f, binding = 0) uniform image2D transmittanceLUT;
-layout(rgba16f, binding = 1) uniform image3D scatteringLUT;
-layout(rgba16f, binding = 2) uniform image3D rayleighLUT;
-layout(rgba16f, binding = 3) uniform image3D mieLUT;
-layout(rgba16f, binding = 4) uniform image2D deltaIrradianceLUT;
-layout(rgba16f, binding = 5) uniform image2D scatteringDensityLUT;
-layout(rgba16f, binding = 6) uniform image2D irradianceLUT;
+layout(rgba32f, binding = 0) uniform image2D transmittanceLUT;
+layout(rgba32f, binding = 1) uniform image3D scatteringLUT;
+layout(rgba32f, binding = 2) uniform image3D rayleighLUT;
+layout(rgba32f, binding = 3) uniform image3D mieLUT;
+layout(rgba32f, binding = 4) uniform image2D deltaIrradianceLUT;
+layout(rgba32f, binding = 5) uniform image2D scatteringDensityLUT;
+layout(rgba32f, binding = 6) uniform image2D irradianceLUT;
 
 float clampCosine(float mu) {
   return clamp(mu, float(-1.0), float(1.0));

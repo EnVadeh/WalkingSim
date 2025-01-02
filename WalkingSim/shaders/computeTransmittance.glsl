@@ -34,7 +34,7 @@ struct densityProfileLayer {
   float padding3;
 };
 
-layout(rgba16f, binding = 0) uniform image2D transmittanceLUT;
+layout(rgba32f, binding = 0) uniform image2D transmittanceLUT;
 
 layout(std140, binding = 1) uniform AtmosphereUBO {
     atmosphereParams atm;
@@ -55,6 +55,17 @@ struct densityProfileLayer {
   float padding3;
 };
 
+float getLayerDensity(int layer, float altitude) {
+  float density = dp[layer].exp_term * exp(dp[layer].exp_scale * altitude) +
+      dp[layer].linear_term * altitude + dp[layer].constant_term;
+  return clamp(density, float(0.0), float(1.0));
+}
+
+float getProfileDensity(int layer, float altitude) {
+    return altitude < dp[0].width ? getLayerDensity(0, altitude) : getLayerDensity(layer, altitude);
+
+}
+
 float ClampCosine(float mu) {
   return clamp(mu, float(-1.0), float(1.0));
 }
@@ -71,16 +82,6 @@ float DistanceToBottomAtmosphereBoundary(
     return -r * mu - sqrt(max(discriminant, 0.0));
 }
 
-float getLayerDensity(int layer, float altitude) {
-  float density = dp[layer].exp_term * exp(dp[layer].exp_scale * altitude) +
-      dp[layer].linear_term * altitude + dp[layer].constant_term;
-  return clamp(density, float(0.0), float(1.0));
-}
-
-float getProfileDensity(int layer, float altitude) {
-    return altitude < dp[0].width ? getLayerDensity(0, altitude) : getLayerDensity(layer, altitude);
-
-}
 
 float ComputeOpticalLengthToTopAtmosphereBoundary(float r, float mu, float scaleHeight) {
     int SAMPLE_COUNT = 500;
@@ -109,10 +110,10 @@ vec3 computeTransmittanceToTopAtmosphereBoundary(float r, float mu){ //basically
     return exp(-transmittance);
 }
 
-/*
-vec3 computeTransmittanceToTopAtmosphereBoundary(float r, float mu){ //basically how much light still is retained when it comes from the sun(source) to the point that we're looking at
-    return exp(-(atm.betaR * ComputeOpticalLengthToTopAtmosphereBoundary(2, r, mu) + atm.betaM * ComputeOpticalLengthToTopAtmosphereBoundary(3, r, mu)));
-}*/
+
+//vec3 computeTransmittanceToTopAtmosphereBoundary(float r, float mu){ //basically how much light still is retained when it comes from the sun(source) to the point that we're looking at
+//    return exp(-(atm.betaR * ComputeOpticalLengthToTopAtmosphereBoundary(2, r, mu) + atm.betaM * ComputeOpticalLengthToTopAtmosphereBoundary(3, r, mu)));
+//}
 
 float getTextureCoordFromUnitRange(float x, int texture_size){
     return 0.5 / float(texture_size) + x * (1.0 - 1.0 / float(texture_size));
@@ -122,19 +123,6 @@ float getUnitRangeFromTextureCoord(float u, int texture_size){
     return (u - 0.5 / float(texture_size)) / (1.0 - 1.0 / float(texture_size));
 }
 
-vec2 getTransmittanceTextureUVfromRMu(float r, float mu){ //brunetone's implementation has a figure
-    float H = sqrt(atm.atmosphereRad * atm.atmosphereRad - atm.earthRad * atm.earthRad);
-    float rho = sqrt(r * r - atm.earthRad * atm.earthRad);
-
-    float d = distanceToTopAtmosphereBoundary(r, mu);
-    float d_min = atm.atmosphereRad - r;
-    float d_max = rho + H;
-    float x_mu = (d - d_min) / (d_max - d_min);
-    float x_r = rho / H;
-    ivec2 size = ivec2(TRANSMITTANCE_TEXTURE_WIDTH, TRANSMITTANCE_TEXTURE_HEIGHT);
-    return vec2(getTextureCoordFromUnitRange(x_mu, size.x), getTextureCoordFromUnitRange(x_r, size.y));
-
-}
 
 void getRMuFromTransmittanceTextureUV(vec2 uv, out float r, out float mu){
     float x_mu = getUnitRangeFromTextureCoord(uv.x,TRANSMITTANCE_TEXTURE_WIDTH); 
@@ -157,6 +145,7 @@ vec3 computeTransmittanceToTopAtmosphereBoundaryTexture(vec2 frag_coord){
     getRMuFromTransmittanceTextureUV( frag_coord / TRANSMITTANCE_TEXTURE_SIZE, r, mu);
     return computeTransmittanceToTopAtmosphereBoundary(r, mu);
 }
+
 
 void main() {
     ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);

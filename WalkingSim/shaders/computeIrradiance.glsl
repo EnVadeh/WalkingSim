@@ -2,8 +2,8 @@
 
 layout(local_size_x = 16, local_size_y = 16) in;
 
-layout(rgba16f, binding = 0) uniform image2D transmittanceLUT;
-layout(rgba16f, binding = 4) uniform image2D deltaIrradianceLUT;
+layout(rgba32f, binding = 0) uniform image2D transmittanceLUT;
+layout(rgba32f, binding = 4) uniform image2D deltaIrradianceLUT;
 
 const float SUN_ANGULAR_RADIUS = 0.004675; // in radians
 const vec3 solar_irradiance = vec3(1.5f);

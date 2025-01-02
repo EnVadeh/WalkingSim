@@ -52,10 +52,10 @@ layout(std140, binding = 2) uniform densityProfileUBO {
     densityProfileLayer dp[4];//first 2 are atmosphere layers, then rayleigh, and mie
 };
 
-layout(rgba16f, binding = 0) uniform image2D transmittanceLUT;
-layout(rgba16f, binding = 1) uniform image3D scatteringLUT;
-layout(rgba16f, binding = 2) uniform image3D rayleighLUT;
-layout(rgba16f, binding = 3) uniform image3D mieLUT;
+layout(rgba32f, binding = 0) uniform image2D transmittanceLUT;
+layout(rgba32f, binding = 1) uniform image3D scatteringLUT;
+layout(rgba32f, binding = 2) uniform image3D rayleighLUT;
+layout(rgba32f, binding = 3) uniform image3D mieLUT;
 
 float clampCosine(float mu) {
   return clamp(mu, float(-1.0), float(1.0));
@@ -312,8 +312,8 @@ void main() {
     vec3 mie;
     computeSingleScatteringTexture(frag_coord, rayleigh, mie); //need layer for 3d coordinates
     vec4 scattering = vec4(rayleigh.rgb, mie.r);
+    
     imageStore(scatteringLUT, pixelCoords, vec4(rayleigh, mie.r));
     imageStore(rayleighLUT, pixelCoords, vec4(rayleigh, 0.0));
-    imageStore(mieLUT, pixelCoords, vec4(mie, 0.0));
-    
+    imageStore(mieLUT, pixelCoords, vec4(mie, 0.0));    
 }
