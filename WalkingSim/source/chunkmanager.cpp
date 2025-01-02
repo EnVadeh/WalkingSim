@@ -90,6 +90,11 @@ void atmosphereLUTs::bind(GLuint shaderID) {
 		CO[i].bind(shaderID, i, lutNames[i]);
 }
 
+void atmosphereLUTs::bind(GLuint shaderID, GLuint from, GLuint to) {
+	for (u8 i = from; i < to; i++)
+		CO[i].bind(shaderID, i, lutNames[i]);
+}
+
 void atmosphereLUTs::createTransmittanceLUT() {
 	//Remnant from when I tried precomputing in the CPU FOR SOME REASON
 	//std::vector<float> data(TRANSMITTANCE_W * TRANSMITTANCE_H * 3);
