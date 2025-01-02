@@ -74,7 +74,7 @@ frameBuffer::frameBuffer() {
 	RT.resize(3);
 	glCreateTextures(GL_TEXTURE_2D, 3, RT.data());
 	for (size_t i = 0; i < 3; i++) {
-		glTextureStorage2D(RT[i], 1, GL_RGB8, 2048, 2048);
+		glTextureStorage2D(RT[i], 1, GL_RGB16, 2048, 2048);
 		
 		glTextureParameteri(RT[i], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(RT[i], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
