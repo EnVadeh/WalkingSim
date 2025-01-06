@@ -105,7 +105,7 @@ int main() {
 	mainCam = &myCam;
 
 	lightManager testlights;
-	testlights.initLight(glm::vec4(0.7071, 0.7071, 0, 0), glm::vec4(1, 0, 0, 0));
+	testlights.initLight(glm::vec4(-0.7071, -0.7071, 0, 0), glm::vec4(1, 0, 0, 0));
 	testlights.turnOn(0);
 	testlights.setLights();//binding = 0
 
@@ -179,7 +179,7 @@ int main() {
 		//drawing stuff to the frame buffer
 		glDisable(GL_STENCIL_TEST);
 		firstpass.bind();
-		glDisable(GL_CULL_FACE);
+		//glDisable(GL_CULL_FACE);
 
 		noise.bindTexture(0, 0, 1, testShader);
 		//cM.checkPos(testShader);
