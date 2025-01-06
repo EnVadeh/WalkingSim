@@ -264,5 +264,7 @@ void main() {
     ivec2 size = ivec2(IRRADIANCE_TEXTURE_WIDTH, IRRADIANCE_TEXTURE_HEIGHT);
     vec2 frag_coord = vec2(pixelCoords)/vec2(size);
     vec3 irradiance = computeIndirectIrradianceTexture(frag_coord, scatteringORDER);
+    imageStore(deltaIrradianceLUT, pixelCoords, vec4(irradiance, 1));
     imageStore(irradianceLUT, pixelCoords, vec4(irradiance, 1));
+    
 }

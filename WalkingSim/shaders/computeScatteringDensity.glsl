@@ -420,5 +420,6 @@ void main() {
     ivec3 pixelCoords = ivec3(gl_GlobalInvocationID.xyz);
     vec3 frag_coord = vec3(pixelCoords);
     vec3 scattering_density = computeScatteringDensityTexture(vec3(frag_coord.xy, frag_coord.z + 0.5), scatteringORDER); //3 = scattering order, I have to go from 2-4... find an intuitive way to run this computeShader
+    //imageStore(scatteringLUT, pixelCoords, vec4(scattering_density, 0));
     imageStore(scatteringDensityLUT, pixelCoords, vec4(scattering_density, 0));
 }

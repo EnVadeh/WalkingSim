@@ -58,6 +58,10 @@ float clampCosine(float mu) {
   return clamp(mu, float(-1.0), float(1.0));
 }
 
+float clampDistance(float d){
+  return max(d, 0.0);
+}
+
 float getTextureCoordFromUnitRange(float x, int texture_size){
     return 0.5 / float(texture_size) + x * (1.0 - 1.0 / float(texture_size));
 }
@@ -69,7 +73,7 @@ float getUnitRangeFromTextureCoord(float u, int texture_size){
 float distanceToTopAtmosphereBoundary( //don't need distance to bottom boundary for transmittance
     float r, float mu) {
     float discriminant = r * r * (mu * mu - 1.0) + atm.atmosphereRad * atm.atmosphereRad;
-    return -r * mu + sqrt(max(discriminant, 0.0));
+    return clampDistance(-r * mu + sqrt(max(discriminant, 0.0)));
 }
 
 void GetRMuSFromIrradianceTextureUv(vec2 uv, out float r, out float mu_s) {
@@ -113,11 +117,8 @@ vec3 ComputeDirectIrradianceTexture(vec2 frag_coord, vec2 size) {
 
 void main(){
     ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
-    vec2 size = imageSize(deltaIrradianceLUT);
+    vec2 size = vec2(IRRADIANCE_TEXTURE_WIDTH, IRRADIANCE_TEXTURE_HEIGHT);
 
-    if(pixelCoords.x > size.x || pixelCoords.y > size.y){
-        return;
-    }
     vec2 frag_coord = vec2(pixelCoords);
 
     vec3 irradiance = ComputeDirectIrradianceTexture(frag_coord, size);
