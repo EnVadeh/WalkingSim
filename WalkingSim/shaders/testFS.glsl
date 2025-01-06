@@ -62,16 +62,15 @@ vec3 fres(float cosTheta, vec3 F){
 void main(){
 	float met = 0.7;
 	float rough = 0.7;
-	vec3 N = fNorm;
-
-	vec3 lightDir = normalize(vec3(lights[0].vLightDir));
+	vec3 N = normalize(fNorm);
+	vec3 lightDir = -normalize(vec3(lights[0].vLightDir));
 	vec3 camDir = normalize(vCamPos-vPos);
 	float fAmbient = 0.3;
 	vec2 uvNoise = fTex * (vec2(1000) / vec2(textureSize(noise, 0)));
 	vec3 dither = vec3(texture2D(noise, uvNoise));
 	vec3 color = vec3(1.0);
 	vec3 albedoAmbient = color * fAmbient;
-	float reflectance = 1;
+	float reflectance = 1.2;
 
 	vec3 f0 = vec3(0.3 * reflectance * reflectance);
 	f0 = mix(vec3(0.03), color, met);
