@@ -28,10 +28,12 @@ struct atmosphereParams { //Precomputed Atmospheric Scattering Eric Bruneton, Fa
 	float Hm = 1200.0f; //Mei scale height //How the density of aerosols scales with height
 	//--16 byte alignment--//
 	//For RGB wavelengths = 612, 549, 465 nm (self calculated)
-	glm::vec3 betaR = {8.84e-6f, 1.365e-5f, 2.65e-5f};
+	//glm::vec3 betaR = {8.84e-6f, 1.365e-5f, 2.65e-5f};
+	glm::vec3 betaR = {5.84e-6f, 1.365e-5f, 3.31e-5f};
 	float padding1;
 	//--16 byte alignment--//
-	glm::vec3 betaM = {2.1e-5f, 2.1e-5f, 2.1e-5f};
+	//glm::vec3 betaM = {2.1e-5f, 2.1e-5f, 2.1e-5f};
+	glm::vec3 betaM = {4.0e-5f, 4.0e-5f, 4.0e-5f};
 	float padding2;
 	//--16 bit alignment--//
 	float meiG = 0.76f;
@@ -39,6 +41,7 @@ struct atmosphereParams { //Precomputed Atmospheric Scattering Eric Bruneton, Fa
 	float padding4;
 	float padding5;
 	//--16 bit alignment--//
+	//glm::vec3 betaMext = { 2.33e-5, 2.33e-5, 2.33e-5 };
 	glm::vec3 betaMext = { 2.33e-5, 2.33e-5, 2.33e-5 };
 	float padding6;
 	//--16 bit alignment--//
@@ -85,4 +88,5 @@ private:
 public:
 	atmosphereLUTs(const atmosphereParams& params);
 	void bind(GLuint shaderID);
+	void bind(GLuint shaderID, GLuint from, GLuint to);
 };
