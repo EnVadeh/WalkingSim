@@ -159,8 +159,8 @@ terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadt
 
 	};
 	std::vector<GLuint> indices = {
-		0, 1, 2,
-		1, 2, 3
+		2, 1, 0,
+		2, 3, 1
 	};
 	//for (int i = 0; i < length - 1; i++) {
 	//	for (int j = 0; j < breadth - 1; j++) {
