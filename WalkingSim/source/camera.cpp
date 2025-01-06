@@ -17,7 +17,7 @@ void camera::setCam() {
 		setUniform(SHADERS[i], "matProj", matProj);
 		setUniform(SHADERS[i], "matView", matView);
 		setUniform(SHADERS[i], "vCamPos", vEye);
-	}
+	}									
 }
 
 void camera::processKeyboardInput(GLint key) {
