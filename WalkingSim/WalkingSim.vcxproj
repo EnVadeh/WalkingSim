@@ -160,6 +160,7 @@
     <None Include="shaders\computeScattering.glsl" />
     <None Include="shaders\computeScatteringDensity.glsl" />
     <None Include="shaders\computeTransmittance.glsl" />
+    <None Include="shaders\newLUT.glsl" />
     <None Include="shaders\renderQuadFS.glsl" />
     <None Include="shaders\renderQuadVS.glsl" />
     <None Include="shaders\testFS.glsl" />

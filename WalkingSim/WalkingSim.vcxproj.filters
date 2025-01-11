@@ -112,5 +112,8 @@
     <None Include="shaders\computeIndirectIrradiance.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\newLUT.glsl">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
