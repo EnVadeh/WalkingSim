@@ -81,8 +81,8 @@ layout(location = 0) out vec3 outColor;
 const int NUM_SAMPLES = 32;
 const vec3 wavelengths = vec3(680.0, 550.0, 440.0);  // RGB wavelengths in nm
 
-//vec3 sunDirection = normalize(-vec3(lights[0].vLightDir));
-vec3 sunDirection = normalize(vec3(0, -1, 0));
+vec3 sunDirection = normalize(vec3(lights[0].vLightDir));
+//vec3 sunDirection = normalize(vec3(0, -1, 0));
 vec3 planetCenter = vec3(0, -6300, 0);
 float planetRadius = 6300;
 
@@ -116,13 +116,13 @@ vec3 calculateScattering(vec3 start, vec3 dir, float maxDist) {
     float opticalDepthM = 0.0;
     vec2 xy;
     vec3 t;
-    for(int i = 0; i < NUM_SAMPLES; i++) {
+    for(int i = 0; i < 32; i++) {
         vec3 samplePos = start + dir * (stepSize * float(i));
         vec2 density = getDensityRatio(samplePos);
         opticalDepthR += density.x * stepSize;
         opticalDepthM += density.y * stepSize;
         
-        float sunRayLength = rayIntersect(samplePos, sunDirection, 6400);
+        float sunRayLength = rayIntersect(samplePos, sunDirection, 3200);
         vec2 sunDensity = getDensityRatio(samplePos + sunDirection * sunRayLength * 0.5);
         float sunOpticalDepthR = sunDensity.x * sunRayLength;
         float sunOpticalDepthM = sunDensity.y * sunRayLength;
@@ -132,6 +132,7 @@ vec3 calculateScattering(vec3 start, vec3 dir, float maxDist) {
         rayleighScattering += density.x * transmittance * stepSize;
         mieScattering += density.y * transmittance * stepSize;
         xy = density;
+        t = samplePos;
     }
 
     float cosTheta = dot(dir, sunDirection);
@@ -139,8 +140,9 @@ vec3 calculateScattering(vec3 start, vec3 dir, float maxDist) {
     float miePhase = 3.0 / (8.0 * PI) * ((1.0 - miePhaseFunction_g * miePhaseFunction_g) * (1.0 + cosTheta * cosTheta)) /
                      ((2.0 + miePhaseFunction_g * miePhaseFunction_g) * pow(1.0 + miePhaseFunction_g * miePhaseFunction_g - 2.0 * miePhaseFunction_g * cosTheta, 1.5));
     
-    return vec3(xy,1);
-    //return (rayleighScattering * rayleighPhase * atm.betaR + mieScattering * miePhase * atm.betaMext) * 20.0;
+    //return vec3(xy,1);
+    //return t;
+    return (rayleighScattering * rayleighPhase * atm.betaR + mieScattering * miePhase * atm.betaMext) * 20.0;
 }
 
 vec3 skyray(vec2 uv, float fieldOfView, float aspectRatio)
@@ -155,11 +157,12 @@ void main() {
 	vec3 v_sky_ray = mat3(inverse(matView)) * skyray(uv, 1.0471 , 1.0f);
     vec3 rayDir = normalize(v_sky_ray);
     vec3 rayStart = vec3(vCamPos.x, vCamPos.y + 6300, vCamPos.z);  // Camera position
-    float atmosphereIntersect = rayIntersect(rayStart, rayDir, 6600);
-    vec3 scattering = calculateScattering(rayStart, rayDir, atmosphereIntersect);
+    float atmosphereIntersect = rayIntersect(rayStart, -rayDir, 6600);
+    vec3 scattering = calculateScattering(rayStart, -rayDir, atmosphereIntersect);
     vec3 color = 1.0 - exp(-scattering);  // Tone mapping
     
     //outColor = texture(irradianceLUT, vec2(uv)).xyz + texture(rayleighLUT, vec3(uv, 0.0)).xyz + texture(mieLUT, vec3(uv, 0.0)).xyz + texture(scatteringDensityLUT, vec3(uv, 0.0)).xyz + texture(multiScatteringLUT, vec3(uv, 0.0)).xyz + texture(transmittanceLUT, vec2(uv)).xyz + texture(deltaIrradianceLUT, vec2(uv)).xyz;
-    outColor = vec3(color);
+    //outColor = vec3(color);
+    outColor = texture(transmittanceLUT, vec2(uv)).xyz;
  }
  
