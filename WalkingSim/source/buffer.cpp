@@ -48,13 +48,6 @@ void buffer::draw(drawID dI, drawType dT, glm::vec3 pos, glm::vec3 rotation,  gl
 	glBindVertexArray(VAO);
 	glUseProgram(shaderID);
 	glm::mat4 matModel = createGeometricToWorldMatrix(pos, rotation, size);
-	//std::cout << "THis is the model matrix: " << std::endl;
-	//for (int i = 0; i < 4; ++i) {
-	//	for (int j = 0; j < 4; ++j) {
-	//		std::cout << matModel[i][j] << " ";
-	//	}
-	//	std::cout << std::endl;
-	//}
 	
 	setUniform(shaderID, "matModel", matModel);
 	glPatchParameteri(GL_PATCH_VERTICES, 4);
