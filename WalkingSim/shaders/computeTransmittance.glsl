@@ -87,7 +87,7 @@ float ComputeOpticalLengthToTopAtmosphereBoundary(float r, float mu, float scale
     int SAMPLE_COUNT = 500;
     float dx = distanceToTopAtmosphereBoundary(r, mu) / float(SAMPLE_COUNT);
     float result = 0.0f;
-    float y_j = exp( -(r - atm.earthRad) / scaleHeight);
+    float y_j = exp( -(r - atm.earthRad) / scaleHeight); //density of the particles at the start point
     for (int i = 0; i <= SAMPLE_COUNT; ++i) {
         float d_i = float(i) * dx;
     // Distance between the current sample point and the planet center.
@@ -95,9 +95,6 @@ float ComputeOpticalLengthToTopAtmosphereBoundary(float r, float mu, float scale
     // Number density at the current sample point (divided by the number density
     // at the bottom of the atmosphere, yielding a dimensionless number).
         float y_i = exp(-(r_i - atm.earthRad)/scaleHeight);
-    // Sample weight (from the trapezoidal rule).
-        //float weight_i = i == 0 || i == SAMPLE_COUNT ? 0.5 : 1.0;
-        //result += y_i * weight_i * dx;
         result += (y_j + y_i) / 2.0f * dx;
         y_j = y_i;
   }
@@ -143,7 +140,8 @@ vec3 computeTransmittanceToTopAtmosphereBoundaryTexture(vec2 frag_coord){
     float mu;
     const vec2 TRANSMITTANCE_TEXTURE_SIZE = vec2(TRANSMITTANCE_TEXTURE_WIDTH, TRANSMITTANCE_TEXTURE_HEIGHT);
     getRMuFromTransmittanceTextureUV( frag_coord / TRANSMITTANCE_TEXTURE_SIZE, r, mu);
-    return computeTransmittanceToTopAtmosphereBoundary(r, mu);
+    //return computeTransmittanceToTopAtmosphereBoundary(r, mu);
+    return vec3(r, mu, 0);
 }
 
 
