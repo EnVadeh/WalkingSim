@@ -84,6 +84,8 @@ int main() {
 	GLuint indirectLUT = fifthCompute.createShader();
 	shader sixthCompute("shaders/computeMultiScattering.glsl");
 	GLuint multiLUT = sixthCompute.createShader();
+	shader seventhCompute("shaders/newLUT.glsl");
+	GLuint newLUT = seventhCompute.createShader();
 
 	shader test("shaders/testVS.glsl", "shaders/testFS.glsl");
 	GLuint testShader = test.createShader();
@@ -117,30 +119,36 @@ int main() {
 	atmosphereLUTs LUTs(atmosphere); //Gives the atmosphere params to the shader to the shader
 	skyBox mSky;
 
-	//auto start = std::chrono::high_resolution_clock::now();
-	glUseProgram(transLUT);
-	glDispatchCompute(256 / 16, 64 / 16, 1); //Basically for one texture, z = 1, x = how many groups, y = how many groups
+	glUseProgram(newLUT);
+	glDispatchCompute(1024 / 16, 1024 / 16, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	glUseProgram(scatLUT);
-	glDispatchCompute(256 / 16, 128 / 16, 32 / 4);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	glUseProgram(irrLUT);
-	glDispatchCompute(64 / 16, 16 / 16, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	int i = 2;
-	for (i; i < 4; i++) {
-		setUniform(scatDensLUT, "scatteringORDER", i);
-		glUseProgram(scatDensLUT);
-		glDispatchCompute(256 / 16, 128 / 16, 32 / 4);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-		setUniform(indirectLUT, "scatteringORDER", i);
-		glUseProgram(indirectLUT);
-		glDispatchCompute(64 / 16, 16 / 16, 1);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	}
-		glUseProgram(multiLUT);
-		glDispatchCompute(256 / 16, 128 / 16, 32 / 4);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+	//auto start = std::chrono::high_resolution_clock::now(); 
+	//glUseProgram(transLUT);
+	//glDispatchCompute(256 / 16, 64 / 16, 1); //Basically for one texture, z = 1, x = how many groups, y = how many groups
+	//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	//glUseProgram(scatLUT);
+	//glDispatchCompute(256 / 16, 128 / 16, 32 / 4);
+	//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	//glUseProgram(irrLUT);
+	//glDispatchCompute(64 / 16, 16 / 16, 1);
+	//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	//int i = 2;
+	//for (i; i < 4; i++) {
+	//	setUniform(scatDensLUT, "scatteringORDER", i);
+	//	glUseProgram(scatDensLUT);
+	//	glDispatchCompute(256 / 16, 128 / 16, 32 / 4);
+	//	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	//	setUniform(indirectLUT, "scatteringORDER", i);
+	//	glUseProgram(indirectLUT);
+	//	glDispatchCompute(64 / 16, 16 / 16, 1);
+	//	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	//}
+	//	glUseProgram(multiLUT);
+	//	glDispatchCompute(256 / 16, 128 / 16, 32 / 4);
+	//	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	// 
+	// 
 	//auto stop = std::chrono::high_resolution_clock::now();
 	//auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 	//std::cout << "The time taken for transmittance to be claculated: " << duration.count() << std::endl;
@@ -182,7 +190,7 @@ int main() {
 		//glDisable(GL_CULL_FACE);
 
 		noise.bindTexture(0, 0, 1, testShader);
-		//cM.checkPos(testShader);
+		cM.checkPos(testShader);
 		glDepthFunc(GL_LEQUAL);
 		LUTs.bind(skyProgram);
 		mSky.draw(skyProgram);
