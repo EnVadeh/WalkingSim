@@ -111,7 +111,8 @@ void atmosphereLUTs::createTransmittanceLUT() {
 	//		data[idx + 1] = transmittance.y;
 	//		data[idx + 2] = transmittance.z;
 	//	}
-	CO[0].setup(TRANSMITTANCE_W, TRANSMITTANCE_H, 0);
+	//CO[0].setup(TRANSMITTANCE_W, TRANSMITTANCE_H, 0);
+	CO[0].setup(1024, 1024, 0);
 }
 
 void atmosphereLUTs::createScatteringLUT() {
