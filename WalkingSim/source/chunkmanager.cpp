@@ -7,8 +7,8 @@ chunkManager::chunkManager(camera& cam) {
 
 void chunkManager::checkPos(GLuint shaderID) {
 
-	vPos[0] = cCam->vEye.x / length;
-	vPos[1] = cCam->vEye.z / breadth;
+	vPos[0] = cCam->vEye.x / (length);
+	vPos[1] = cCam->vEye.z / (breadth);
 
 	glm::vec3 temp = { vPos[0], 0, vPos[1]};
 	 
@@ -27,30 +27,34 @@ void chunkManager::checkPos(GLuint shaderID) {
 
 void chunkManager::draw(GLuint shaderID) {
 	glm::vec3 tempV;
-	tempV.x = chunks[0].x;
+
+	//Center Chunk's coordinates.
+	tempV.x = chunks[0].x; 
 	tempV.z = chunks[0].z;
 
+	//if moving towards negative x or negative z axis then the chunk's coordinates is decreased
 	if (negative_x == true)
 		tempV.x = tempV.x - 1;
 
 	if (negative_z == true) 
 		tempV.z = tempV.z - 1;
 	
+	//Scale it up to the chunk size
 	tempV.x = tempV.x * length;
 	tempV.y = 0;
 	tempV.z = tempV.z * breadth;
 
-	glm::vec3 original;
+	glm::vec3 original; //named original because this is the new point that other temporary positions will be relative to
 	original = tempV;
 
+	//Doing a loop where 9 chunks are rendered 
 	for (int i = 0; i < 3; i++) {
-		tempV.z = (i - 1) * breadth + original.z;
+		tempV.z = (i - 1) * breadth + original.z; //row wise, offset from the new z's position
 		for (int j = 0; j < 3; j++) {
-			tempV.x = (j - 1) * length + original.x;
-			chunk->draw(shaderID, tempV, glm::vec3(1, 1, 1));
+			tempV.x = (j - 1) * length + original.x; //column wise, offset form the new x's position
+			chunk->draw(shaderID, tempV, glm::vec3(1, 1, 1)); //draw each time offset from the center (original) position
 		}
 	}
-
 }
 
 atmosphereLUTs::atmosphereLUTs(const atmosphereParams& params) : atmosphere(params) {
