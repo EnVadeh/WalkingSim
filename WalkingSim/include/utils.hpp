@@ -68,7 +68,6 @@ T clamp(T value, T minVal, T maxVal) {
 extern float deltaTime; // Time between current frame and last frame
 extern float lastFrame;
 
-
 extern size_t SHADER_COUNT;
 extern size_t LIGHT_COUNT;
 extern size_t UBO_COUNT;
@@ -86,3 +85,62 @@ void setUniform(GLuint shaderID, std::string name, glm::vec3 val);
 void setUniform(GLuint shaderID, std::string name, glm::vec4 val);
 void setUniform(GLuint shaderID, std::string name, glm::mat3 val);
 void setUniform(GLuint shaderID, std::string name, glm::mat4 val);
+
+template <typename T>
+class image2D{ //I don't think it'd matter if UV starts from the 0 of the vector or the (width * height) - width, because I'm the one putting values anyways
+private:
+	std::vector<T> image;
+	std::vector<bool> cFlag;
+	size_t width;
+	size_t height;
+public:
+	image2D(size_t row, size_t columns);
+	void write(T data, size_t x, size_t y, bool replace);
+	T read(size_t x, size_t y);
+	glm::vec2 size();
+};
+
+template <typename T>
+image2D<T>::image2D(size_t row, size_t columns) {
+	width = row;
+	height = columns;
+	image.resize(width * height);
+	cFlag.resize(width * height, false);
+}
+
+template <typename T>
+void image2D<T>::write(T data, size_t x, size_t y, bool replace){
+	if (x >= width || y >= height) {
+		std::cout << "pixel out of bounds, the size of the image is: " << width << " , " << height << std::endl;
+		return;
+	}
+	if (!replace)
+		if (cFlag[x + y * width] == false) {
+			image[x + y * width] = data;
+			cFlag[x + y * width] = true;
+			return;
+		}
+		else {
+			std::cout << "Already written" << std::endl; //remember that the width goes from 0 -> width-1
+			return;
+		}
+	image[x + y * width] = data; 
+	cFlag[x + y * width] = true;
+	return;
+}
+
+template <typename T>
+T image2D<T>::read(size_t x, size_t y)
+{
+	if (x >= width || y >= height) {
+		std::cout << "pixel out of bounds, the size of the image is: " << width << " , " << height << std::endl;
+		return static_cast<T>(0);
+	}
+	if (cFlag[x + y * width] == false) {
+		return static_cast<T>(0);
+	}
+	return image[x + y * width];
+}
+
+template <typename T>
+glm::vec2 image2D<T>::size() { return glm::vec2{ width, height }; }
