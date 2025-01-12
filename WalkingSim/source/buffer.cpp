@@ -134,20 +134,22 @@ void frameBuffer::sample(GLuint shaderID, GLint base_unit) {
 terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadth) { 
 	std::vector<Vertex> tVertices;
 
+	float step_size = 0.03125;
+	size_t division_num = static_cast<size_t>(1.0f / step_size);
 	//Generating triangles row wise
-	for (float j = 0; j < breadth + 1; j++) 
-		for (float i = 0; i < length + 1; i++) 
+	for (float j = 0; j < breadth + step_size; j = j + step_size) 
+		for (float i = 0; i < length + step_size; i = i + step_size) 
 			tVertices.push_back({ glm::vec3(0.0f + i, 0.0f, 0.0f + j), glm::vec2(i / length, j / breadth), glm::vec3(0, 1, 0) });
 
 	std::vector<GLuint> indices;
 
 	//Generating indices quad wise which is row wise
-	for (size_t j = 0; j < breadth ; j++) 
-		for (size_t i = 0; i < length ; i++) {
-			size_t i0 = i + j * (breadth + 1);	// top left corner
-			size_t i1 = i + j * (breadth + 1) + 1;	// top right corner
-			size_t i2 = i + (j + 1) * (breadth + 1);	// bottom left corner
-			size_t i3 = i + (j + 1) * (breadth + 1) + 1;	// bottom right 
+	for (size_t j = 0; j < breadth * division_num ; j++) 
+		for (size_t i = 0; i < length * division_num ; i++) {
+			size_t i0 = i + j * (breadth * division_num + 1);	// top left corner
+			size_t i1 = i + j * (breadth * division_num + 1) + 1;	// top right corner
+			size_t i2 = i + (j + 1) * (breadth * division_num + 1);	// bottom left corner
+			size_t i3 = i + (j + 1) * (breadth * division_num + 1) + 1;	// bottom right 
 			//going to do the quad counter clockwise since the forward face is counterclock wise in my setup
 			indices.push_back(i0);
 			indices.push_back(i2);
