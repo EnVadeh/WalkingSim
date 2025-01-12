@@ -162,7 +162,8 @@ void main() {
     vec3 color = 1.0 - exp(-scattering);  // Tone mapping
     
     //outColor = texture(irradianceLUT, vec2(uv)).xyz + texture(rayleighLUT, vec3(uv, 0.0)).xyz + texture(mieLUT, vec3(uv, 0.0)).xyz + texture(scatteringDensityLUT, vec3(uv, 0.0)).xyz + texture(multiScatteringLUT, vec3(uv, 0.0)).xyz + texture(transmittanceLUT, vec2(uv)).xyz + texture(deltaIrradianceLUT, vec2(uv)).xyz;
-    //outColor = vec3(color);
-    outColor = texture(transmittanceLUT, vec2(uv)).xyz;
+    outColor = vec3(color);
+    //outColor = texture(transmittanceLUT, vec2(uv)).xyz;
+ 
  }
  
