@@ -99,6 +99,6 @@ void main(){
 	vec3 Lo = (kD * color/ PI + specular) * NdotL * radiance;
 	Lo += remap_tri(dither.r)/255;
 	Lo = clamp(Lo, 0.0, 1.0);
-	outColor = Lo;
-	//outColor = vec4(fTex, 0, 1);
+	//outColor = Lo;
+	outColor = vec3(fTex, 1);
 }

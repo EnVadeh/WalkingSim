@@ -138,6 +138,7 @@ void main() {
     if(pixelCoords.x > size.x || pixelCoords.y > size.y){
         return;
     }
+    
     dvec2 frag_coord = dvec2(double(pixelCoords.x)/1023, double(pixelCoords.y)/1023);
     dvec3 transmittance = computeTransmittance(frag_coord);
     // Write the data to the output texture
