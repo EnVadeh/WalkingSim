@@ -26,7 +26,7 @@ buffer::buffer(std::vector<Vertex> vertices, std::vector<GLuint> indices, drawFr
 	glCreateVertexArrays(1, &VAO);
 	glCreateBuffers(bufferID::NumBuffers, VBO);
 	glNamedBufferData(VBO[bufferID::ArrayBuffer], sizeof(Vertex) * vertices.size(), vertices.data(), usage);
-	glNamedBufferData(VBO[bufferID::ElementBuffer], sizeof(indices), indices.data(), usage);
+	glNamedBufferData(VBO[bufferID::ElementBuffer], sizeof(GLuint) * indices.size(), indices.data(), usage);
 
 	glVertexArrayAttribFormat(VAO, attribID::vPos, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, vPosition));
 	glEnableVertexArrayAttrib(VAO, attribID::vPos);
@@ -133,40 +133,31 @@ void frameBuffer::sample(GLuint shaderID, GLint base_unit) {
 
 terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadth) { 
 	std::vector<Vertex> tVertices;
-	//for(size_t i = 0; i < length; ++i)
-	//	for (size_t j = 0; j < breadth; ++j) {
-	//		Vertex temp;
-	//		temp.vPosition = glm::vec3(i, 0, j);	
-	//		temp.vNormal = glm::vec3(0, 1, 0); //cause it's flat
-	//		temp.vTex = glm::vec2(float(i) / (length - 1), float(j) / (breadth - 1));
-	//		tVertices.emplace_back(temp);
-	//		std::cout << "vertices generated are: (" << temp.vPosition.x << ", " << temp.vPosition.y << ", " << temp.vPosition.z << ")" << std::endl;
-	//		std::cout << "normals generated are: (" << temp.vNormal.x << ", " << temp.vNormal.y << ", " << temp.vNormal.z << ")" << std::endl;
-	//		std::cout << "texcoord generated are: (" << temp.vTex.x << ", " << temp.vTex.y <<")" << std::endl;
-	//	}
-	tVertices = {
-		{ glm::vec3(0.0f,  0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f) },
-		{ glm::vec3(length, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f) },
-		{ glm::vec3(0.0f, 0.0f, breadth), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f) },
-		{ glm::vec3(length, 0.0f, breadth), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f) }
 
-	};
-	std::vector<GLuint> indices = {
-		2, 1, 0,
-		2, 3, 1
-	};
-	//for (int i = 0; i < length - 1; i++) {
-	//	for (int j = 0; j < breadth - 1; j++) {
-	//		int i0 = j + i * breadth;
-	//		int i1 = j + 1 + i * breadth;
-	//		int i2 = j + (i + 1) * breadth;
-	//		int i3 = j + 1 + (i + 1) * breadth;
-	//		indices.push_back(i0);
-	//		indices.push_back(i2);
-	//		indices.push_back(i3);
-	//		indices.push_back(i1);
-	//	}
-	//}
+	//Generating triangles row wise
+	for (float j = 0; j < breadth + 1; j++) 
+		for (float i = 0; i < length + 1; i++) 
+			tVertices.push_back({ glm::vec3(0.0f + i, 0.0f, 0.0f + j), glm::vec2(i / length, j / breadth), glm::vec3(0, 1, 0) });
+
+	std::vector<GLuint> indices;
+
+	//Generating indices quad wise which is row wise
+	for (size_t j = 0; j < breadth ; j++) 
+		for (size_t i = 0; i < length ; i++) {
+			size_t i0 = i + j * (breadth + 1);	// top left corner
+			size_t i1 = i + j * (breadth + 1) + 1;	// top right corner
+			size_t i2 = i + (j + 1) * (breadth + 1);	// bottom left corner
+			size_t i3 = i + (j + 1) * (breadth + 1) + 1;	// bottom right 
+			//going to do the quad counter clockwise since the forward face is counterclock wise in my setup
+			indices.push_back(i0);
+			indices.push_back(i2);
+			indices.push_back(i1);
+			indices.push_back(i1);
+			indices.push_back(i2);
+			indices.push_back(i3);
+
+	}
+
 	tBuffer = std::make_shared<buffer>(tVertices, indices, drawFreq::staticDraw);
 }
 
