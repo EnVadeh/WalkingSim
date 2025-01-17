@@ -61,7 +61,7 @@ private:
 	std::string a6 = "scatteringDensityLUT";
 	std::string a7 = "irradianceLUT";
 	std::string a8 = "multiScatteringLUT";
-	
+
 
 	static const int TRANSMITTANCE_W = 256; 
 	static const int TRANSMITTANCE_H = 64;
@@ -78,15 +78,34 @@ private:
 	void initializeLUTs();
 	void createTransmittanceLUT();
 	void createScatteringLUT();
-	//void uvtoTransmittanceParams(float u, float v, float& r, float& mu);
-
-	//glm::vec3 computeTransmittance(float r, float mu);
-	//glm::vec3 computeScattering(float r, float mu, float mu_s, float nu);
-
-	//float rayIntersectSphere(float r, float mu, float radius);
 
 public:
 	atmosphereLUTs(const atmosphereParams& params);
 	void bind(GLuint shaderID);
 	void bind(GLuint shaderID, GLuint from, GLuint to);
 };
+
+
+vector2D randomGradient(vector2D p) {
+	p = p + 0.1;
+	float x = dot(p, vector2D(123.4, 234.5));
+	float y = dot(p, vector2D(234.5, 345.6));
+	vector2D gradient = vector2D(x, y);
+	gradient.sinof();
+	gradient = gradient * 43758.5453;
+
+	gradient.sinof();
+	return gradient;
+}
+
+template<typename T>
+void perlinNoise(image2D<T>& image) {
+	float size_x = image.size.x;
+	float size_y = image.size.y;
+	image2D<vector2D> PN(size_x, size_y); //For each pixel, we need 4 constantish values right? So x,y is itself, the corner to it's right is x+1,y value, the corner to its up/down depending on the coordinate system is it's y+1/y-1, and the corner to its diagonal is x+1,y+1
+	for (size_t x; x < size_x; x++) {
+		for (size_t y; y < size_t; y++) {
+			PN.write(x, y, randomGradient(vector2D(x, y)));
+		}
+	}
+}
