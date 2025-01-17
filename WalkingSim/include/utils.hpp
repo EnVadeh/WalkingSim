@@ -86,6 +86,28 @@ void setUniform(GLuint shaderID, std::string name, glm::vec4 val);
 void setUniform(GLuint shaderID, std::string name, glm::mat3 val);
 void setUniform(GLuint shaderID, std::string name, glm::mat4 val);
 
+class vector2D {
+public: 
+	double x;
+	double y;
+	vector2D(double x, double y) : x(x), y(y) {}
+	vector2D(double x) : x(x), y(x) {}
+	void sinof() { x = sin(x); y = sin(y); }
+};
+
+inline vector2D operator+(const vector2D& u, const vector2D& v) {
+	return vector2D(u.x + v.x, u.y + v.y);
+}
+
+inline vector2D operator*(const vector2D& u, const vector2D& v) {
+	return vector2D(u.x * v.x, u.y * v.y);
+}
+
+inline double dot(const vector2D& u, const vector2D& v) {
+	return (u.x * v.x + u.y * v.y);
+}
+
+
 template <typename T>
 class image2D{ //I don't think it'd matter if UV starts from the 0 of the vector or the (width * height) - width, because I'm the one putting values anyways
 private:
@@ -95,10 +117,12 @@ private:
 	size_t height;
 public:
 	image2D(size_t row, size_t columns);
-	void write(T data, size_t x, size_t y, bool replace);
-	T read(size_t x, size_t y);
+	void write(T data, size_t x, size_t y, bool replace); //The indexing starts from 0
+	T read(size_t x, size_t y) const; //const after a method signifies that the method doesn't change the object's state (members)
 	glm::vec2 size();
+	glm::vec2 index(size_t num);
 };
+
 
 template <typename T>
 image2D<T>::image2D(size_t row, size_t columns) {
@@ -130,17 +154,20 @@ void image2D<T>::write(T data, size_t x, size_t y, bool replace){
 }
 
 template <typename T>
-T image2D<T>::read(size_t x, size_t y)
+T image2D<T>::read(size_t x, size_t y) const
 {
 	if (x >= width || y >= height) {
 		std::cout << "pixel out of bounds, the size of the image is: " << width << " , " << height << std::endl;
-		return static_cast<T>(0);
+		return T(0);
 	}
 	if (cFlag[x + y * width] == false) {
-		return static_cast<T>(0);
+		return T(0);
 	}
 	return image[x + y * width];
 }
 
 template <typename T>
 glm::vec2 image2D<T>::size() { return glm::vec2{ width, height }; }
+
+template <typename T>
+glm::vec2 image2D<T>::index(size_t num) { return glm::vec2{ (num%width) , (num/width) }; } //x is the remainder, y is the quotient
