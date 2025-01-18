@@ -118,7 +118,7 @@ int main() {
 	atmosphereParams atmosphere;
 	atmosphereLUTs LUTs(atmosphere); //Gives the atmosphere params to the shader to the shader
 	skyBox mSky;
-
+	
 	glUseProgram(newLUT);
 	glDispatchCompute(1024 / 16, 1024 / 16, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
