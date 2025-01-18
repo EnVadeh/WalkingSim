@@ -100,5 +100,5 @@ void main(){
 	Lo += remap_tri(dither.r)/255;
 	Lo = clamp(Lo, 0.0, 1.0);
 	//outColor = Lo;
-	outColor = vec3(fTex, 1);
+	outColor = vec3(vPos.y, vPos.y, vPos.y);
 }
