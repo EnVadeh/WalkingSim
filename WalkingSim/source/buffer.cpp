@@ -133,14 +133,26 @@ void frameBuffer::sample(GLuint shaderID, GLint base_unit) {
 
 terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadth) { 
 	std::vector<Vertex> tVertices;
-
-	float step_size = 0.03125;
+	//float step_size = 0.03125;
+	float step_size = 0.015625; //runs 641 times
 	size_t division_num = static_cast<size_t>(1.0f / step_size);
+	//generating HeightMap:
+	image2D<double>heightMap(500, 500);
+	perlinNoise(heightMap);
+	//for (size_t tempx = 0; tempx < 500; tempx++)
+	//	std::cout << heightMap.directRead(tempx) << "\n" ;
 	//Generating triangles row wise
-	for (float j = 0; j < breadth + step_size; j = j + step_size) 
-		for (float i = 0; i < length + step_size; i = i + step_size) 
-			tVertices.push_back({ glm::vec3(0.0f + i, 0.0f, 0.0f + j), glm::vec2(i / length, j / breadth), glm::vec3(0, 1, 0) });
-
+	size_t perlin_x = 0;
+	for (float j = 0; j < breadth + step_size; j = j + step_size) {
+	size_t perlin_y = 0;
+	size_t norm_x = (float(perlin_x)) / (642.0f) * 500;
+		for (float i = 0; i < length + step_size; i = i + step_size) {
+			size_t norm_y = (float(perlin_y)) / (642.0f) * 500;
+			tVertices.push_back({ glm::vec3(0.0f + i, 0.0f + heightMap.read(norm_x, norm_y), 0.0f + j), glm::vec2(i / length, j / breadth), glm::vec3(0, 1, 0)});
+			perlin_y++;
+		}
+		perlin_x++;
+	}
 	std::vector<GLuint> indices;
 
 	//Generating indices quad wise which is row wise
