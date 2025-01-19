@@ -14,7 +14,7 @@ out vec3 fNorm;
 out vec3 vPos;
 
 void main(){
-	vec3 tempPos = vec3(pos.x, 0, pos.z);
+	vec3 tempPos = vec3(pos.x, pos.y, pos.z);
 	gl_Position = matProjView * matModel*  vec4(tempPos, 1.0);
 	fTex = tex;
 	fNorm = norm;
