@@ -102,48 +102,51 @@ void perlinNoise(image2D<T>& image) {
 	size_t size_x = image.size().x;
 	size_t size_y = image.size().y;
 
-	glm::vec2 cornerVecSize = { size_x / 100 + 1, size_y / 100 + 1};
+	int grid_size = 50;
+
+	glm::vec2 cornerVecSize = { size_x / grid_size +1, size_y / grid_size + 1};
 	image2D<vector2D> cornerVecs(cornerVecSize.x, cornerVecSize.y);
 	for (size_t x = 0; x < cornerVecSize.x; x++)
 		for (size_t y = 0; y < cornerVecSize.y; y++)
 			cornerVecs.write(x, y, randomGradient(vector2D(x, y)), 0);
 
 	auto fade = [](float t) -> float { return t * t * t * (t * (t * 6 - 15) + 10);}; // Quintic curve
-	std::ofstream out("newfile.txt");
+	auto clamp = [](float x) -> float { float t; x < 0 ? t = 0 : t = x; return t; };
+	std::ofstream out("newfile.ppm");
 	std::streambuf* coutbuf = std::cout.rdbuf(); // Save old buffer
 	std::cout.rdbuf(out.rdbuf());   // Redirect std::cout to file
 	std::cout << "P3\n";
 	std::cout << 500 << " " << 500 << "\n";
 	std::cout << "255\n";
-	for (size_t x = 0; x < size_x; x++) {
-		for (size_t y = 0; y < size_y; y++) {
+	for (size_t y = 0; y < size_y; y++) {
+		for (size_t x = 0; x < size_x; x++) {
 			float u;
 			float v;
-			u = float(y % 100) / 100; //u goes towards 1 along the x-axis, and in the case of a 2D array, going across the x-axis is changing the value of y
-			v = float(x % 100) / 100; //same as above but for v and y-axis
+			u = float(x % grid_size) / grid_size; 
+			v = float(y % grid_size) / grid_size;
 
 			//std::cout << u << ", " << v;
 			u = fade(u);
 			v = fade(v);
 
-			size_t x_index = x / 100; //The indices of the abstract grid cells, which one we're in rn, it also starts from 0
-			size_t y_index = y / 100;
+			size_t x_index = x / grid_size; //The indices of the abstract grid cells, which one we're in rn, it also starts from 0
+			size_t y_index = y / grid_size;
 
 			vector2D pos = vector2D(u, v);//current position in 0-1
 
 			//remember that v goes towards 1 when going down...
 			
 			//direction vectors from the corners of a grid to the position
-			vector2D tl = pos - vector2D(0,0);
-			vector2D tr = pos - vector2D(1,0);
-			vector2D bl = pos - vector2D(0,1);
-			vector2D br = pos - vector2D(1,1);
+			vector2D tl = pos - vector2D(0,1);
+			vector2D tr = pos - vector2D(1,1);
+			vector2D bl = pos - vector2D(0,0);
+			vector2D br = pos - vector2D(1,0);
 
 			//Dot products between the corner vectors and the direction vectors from the corner to position
-			double tld = dotProduct(tl, cornerVecs.read(x_index, y_index));
-			double trd = dotProduct(tr, cornerVecs.read(x_index + 1, y_index));
-			double bld = dotProduct(bl, cornerVecs.read(x_index, y_index + 1));
-			double brd = dotProduct(br, cornerVecs.read(x_index + 1, y_index + 1));
+			double tld = dotProduct(tl, cornerVecs.read(x_index, y_index + 1));
+			double trd = dotProduct(tr, cornerVecs.read(x_index + 1, y_index + 1));
+			double bld = dotProduct(bl, cornerVecs.read(x_index, y_index));
+			double brd = dotProduct(br, cornerVecs.read(x_index + 1, y_index));
 
 			//interpolating the left and right vectors along top and bottom
 			double t = mix(tld, trd, u);
@@ -156,6 +159,7 @@ void perlinNoise(image2D<T>& image) {
 			//perlin = fabs(perlin);
 			//decreasing the value
 			//perlin = perlin / 2;
+			perlin = clamp(perlin);
 			std::cout << static_cast<int>(perlin * 255) << " " << static_cast<int>(perlin * 255)<< " " << static_cast<int>(perlin * 255) << " ";
 			image.write(x, y, perlin, 0);
 		}
