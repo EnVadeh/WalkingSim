@@ -134,10 +134,10 @@ void frameBuffer::sample(GLuint shaderID, GLint base_unit) {
 
 terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadth) { 
 	std::vector<Vertex> tVertices;
-	//float step_size = 0.03125;
-	float step_size = 0.015625; //runs about 1280 times me thinks
-	float normalisingFactor = (float(length) + step_size)/step_size;
-	size_t division_num = static_cast<size_t>(1.0f / step_size);
+	//float stepSize = 0.03125;
+	float stepSize = 0.015625; //runs about 1280 times me thinks
+	float normalisingFactor = (float(length) + stepSize)/stepSize;
+	size_t divisonNum = static_cast<size_t>(1.0f / stepSize);
 	//generating HeightMap:
 
 	size_t hm1Size = 500;
@@ -162,9 +162,9 @@ terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadt
 	//}
 	//Generating triangles row wise
 	size_t perlinY = 0;
-	for (float j = 0; j < breadth + step_size; j = j + step_size) {
+	for (float j = 0; j < breadth + stepSize; j = j + stepSize) {
 	size_t perlinX = 0;
-		for (float i = 0; i < length + step_size; i = i + step_size) {
+		for (float i = 0; i < length + stepSize; i = i + stepSize) {
 			size_t hm1NormX = (float(perlinX)) / (normalisingFactor) * hm1Size;
 			size_t hm1NormY = (float(perlinY)) / (normalisingFactor) * hm1Size;
 			size_t hm2NormY = (float(perlinY)) / (normalisingFactor) * hm2Size;
@@ -177,12 +177,12 @@ terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadt
 	std::vector<GLuint> indices;
 
 	//Generating indices quad wise which is row wise
-	for (size_t j = 0; j < breadth * division_num ; j++) 
-		for (size_t i = 0; i < length * division_num ; i++) {
-			size_t i0 = i + j * (breadth * division_num + 1);	// top left corner
-			size_t i1 = i + j * (breadth * division_num + 1) + 1;	// top right corner
-			size_t i2 = i + (j + 1) * (breadth * division_num + 1);	// bottom left corner
-			size_t i3 = i + (j + 1) * (breadth * division_num + 1) + 1;	// bottom right 
+	for (size_t j = 0; j < breadth * divisonNum ; j++) 
+		for (size_t i = 0; i < length * divisonNum ; i++) {
+			size_t i0 = i + j * (breadth * divisonNum + 1);	// top left corner
+			size_t i1 = i + j * (breadth * divisonNum + 1) + 1;	// top right corner
+			size_t i2 = i + (j + 1) * (breadth * divisonNum + 1);	// bottom left corner
+			size_t i3 = i + (j + 1) * (breadth * divisonNum + 1) + 1;	// bottom right 
 			//going to do the quad counter clockwise since the forward face is counterclock wise in my setup
 			indices.push_back(i0);
 			indices.push_back(i2);
