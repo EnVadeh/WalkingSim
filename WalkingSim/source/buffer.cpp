@@ -1,4 +1,5 @@
 #include "buffer.hpp"
+#include <fstream>
 
 buffer::buffer(std::vector<Vertex> vertices, drawFreq usage) {
 	glCreateVertexArrays(1, &VAO);
@@ -137,21 +138,40 @@ terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadt
 	float step_size = 0.015625; //runs 641 times
 	size_t division_num = static_cast<size_t>(1.0f / step_size);
 	//generating HeightMap:
-	image2D<double>heightMap(500, 500);
-	perlinNoise(heightMap);
-	//for (size_t tempx = 0; tempx < 500; tempx++)
-	//	std::cout << heightMap.directRead(tempx) << "\n" ;
+
+	size_t hm1_size = 500;
+	size_t hm2_size = 200;
+	image2D<double>heightMap1(hm1_size, hm1_size);
+	image2D<double>heightMap2(hm2_size, hm2_size);
+	perlinNoise(heightMap1, 50, true);
+	perlinNoise(heightMap2, 20, false);
+
+	//std::ofstream out("newfile.txt");
+	//std::streambuf* coutbuf = std::cout.rdbuf(); // Save old buffer
+	//std::cout.rdbuf(out.rdbuf());   // Redirect std::cout to file
+	//std::cout << "P3\n";
+	//std::cout << 500 << " " << 500 << "\n";
+	//std::cout << "255\n";
+
+	//for (size_t tempx = 0; tempx < 500; tempx++) {
+	//	for (size_t tempy = 0; tempy < 500; tempy++) {
+	//	//std::cout << static_cast<int>(heightMap.read(tempx, tempy) * 255) << " "<< static_cast<int>(heightMap.read(tempx, tempy) * 255) <<" "<< static_cast<int>(heightMap.read(tempx, tempy) * 255);
+	//}
+	//	//std::cout<<"\n";
+	//}
 	//Generating triangles row wise
-	size_t perlin_x = 0;
-	for (float j = 0; j < breadth + step_size; j = j + step_size) {
 	size_t perlin_y = 0;
-	size_t norm_x = (float(perlin_x)) / (642.0f) * 500;
+	for (float j = 0; j < breadth + step_size; j = j + step_size) {
+	size_t perlin_x = 0;
 		for (float i = 0; i < length + step_size; i = i + step_size) {
-			size_t norm_y = (float(perlin_y)) / (642.0f) * 500;
-			tVertices.push_back({ glm::vec3(0.0f + i, 0.0f + heightMap.read(norm_x, norm_y), 0.0f + j), glm::vec2(i / length, j / breadth), glm::vec3(0, 1, 0)});
-			perlin_y++;
+			size_t hm1_normx = (float(perlin_x)) / (642.0f) * hm1_size;
+			size_t hm1_normy = (float(perlin_y)) / (642.0f) * hm1_size;
+			size_t hm2_normy = (float(perlin_y)) / (642.0f) * hm2_size;
+			size_t hm2_normx = (float(perlin_x)) / (642.0f) * hm2_size;
+			tVertices.push_back({ glm::vec3(0.0f + i, 0.0f + heightMap1.read(hm1_normx, hm1_normy) * 3 + heightMap2.read(hm2_normx, hm2_normy) * 0.5 , 0.0f + j), glm::vec2(i / length, j / breadth), glm::vec3(0, 1, 0)});
+			perlin_x++;
 		}
-		perlin_x++;
+		perlin_y++;
 	}
 	std::vector<GLuint> indices;
 
