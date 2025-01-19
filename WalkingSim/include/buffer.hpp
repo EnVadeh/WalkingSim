@@ -95,14 +95,12 @@ public:
 
 //This is broken, I need to make small grids here...
 template<typename T>
-void perlinNoise(image2D<T>& image) {
+void perlinNoise(image2D<T>& image, int grid_size, bool clampNegative) {
 	//We are going to 'grid' the original image, where each grid is 50x50
 	//We are going to store, only the 100x100 random vectors
 
 	size_t size_x = image.size().x;
 	size_t size_y = image.size().y;
-
-	int grid_size = 50;
 
 	glm::vec2 cornerVecSize = { size_x / grid_size +1, size_y / grid_size + 1};
 	image2D<vector2D> cornerVecs(cornerVecSize.x, cornerVecSize.y);
@@ -112,12 +110,12 @@ void perlinNoise(image2D<T>& image) {
 
 	auto fade = [](float t) -> float { return t * t * t * (t * (t * 6 - 15) + 10);}; // Quintic curve
 	auto clamp = [](float x) -> float { float t; x < 0 ? t = 0 : t = x; return t; };
-	std::ofstream out("newfile.ppm");
-	std::streambuf* coutbuf = std::cout.rdbuf(); // Save old buffer
-	std::cout.rdbuf(out.rdbuf());   // Redirect std::cout to file
-	std::cout << "P3\n";
-	std::cout << 500 << " " << 500 << "\n";
-	std::cout << "255\n";
+	//std::ofstream out("newfile.ppm");
+	//std::streambuf* coutbuf = std::cout.rdbuf(); // Save old buffer
+	//std::cout.rdbuf(out.rdbuf());   // Redirect std::cout to file
+	//std::cout << "P3\n";
+	//std::cout << 500 << " " << 500 << "\n";
+	//std::cout << "255\n";
 	for (size_t y = 0; y < size_y; y++) {
 		for (size_t x = 0; x < size_x; x++) {
 			float u;
@@ -159,8 +157,9 @@ void perlinNoise(image2D<T>& image) {
 			//perlin = fabs(perlin);
 			//decreasing the value
 			//perlin = perlin / 2;
-			perlin = clamp(perlin);
-			std::cout << static_cast<int>(perlin * 255) << " " << static_cast<int>(perlin * 255)<< " " << static_cast<int>(perlin * 255) << " ";
+			if(clampNegative)
+				perlin = clamp(perlin);
+			//std::cout << static_cast<int>(perlin * 255) << " " << static_cast<int>(perlin * 255)<< " " << static_cast<int>(perlin * 255) << " ";
 			image.write(x, y, perlin, 0);
 		}
 		std::cout << "\n";
