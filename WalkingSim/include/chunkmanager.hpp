@@ -13,8 +13,8 @@ private:
 	camera* cCam = nullptr;
 	bool negative_x = false;
 	bool negative_z = false;
-	GLint length = 10;
-	GLint breadth = 10;
+	GLint length = 20;
+	GLint breadth = 20;
 	void draw(GLuint shaderID);
 public:
 	chunkManager(camera &cam);
