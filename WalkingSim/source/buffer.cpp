@@ -135,14 +135,15 @@ void frameBuffer::sample(GLuint shaderID, GLint base_unit) {
 terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadth) { 
 	std::vector<Vertex> tVertices;
 	//float step_size = 0.03125;
-	float step_size = 0.015625; //runs 641 times
+	float step_size = 0.015625; //runs about 1280 times me thinks
+	float normalisingFactor = (float(length) + step_size)/step_size;
 	size_t division_num = static_cast<size_t>(1.0f / step_size);
 	//generating HeightMap:
 
-	size_t hm1_size = 500;
-	size_t hm2_size = 200;
-	image2D<double>heightMap1(hm1_size, hm1_size);
-	image2D<double>heightMap2(hm2_size, hm2_size);
+	size_t hm1Size = 500;
+	size_t hm2Size = 200;
+	image2D<double>heightMap1(hm1Size, hm1Size);
+	image2D<double>heightMap2(hm2Size, hm2Size);
 	perlinNoise(heightMap1, 50, true);
 	perlinNoise(heightMap2, 20, false);
 
@@ -160,18 +161,18 @@ terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadt
 	//	//std::cout<<"\n";
 	//}
 	//Generating triangles row wise
-	size_t perlin_y = 0;
+	size_t perlinY = 0;
 	for (float j = 0; j < breadth + step_size; j = j + step_size) {
-	size_t perlin_x = 0;
+	size_t perlinX = 0;
 		for (float i = 0; i < length + step_size; i = i + step_size) {
-			size_t hm1_normx = (float(perlin_x)) / (642.0f) * hm1_size;
-			size_t hm1_normy = (float(perlin_y)) / (642.0f) * hm1_size;
-			size_t hm2_normy = (float(perlin_y)) / (642.0f) * hm2_size;
-			size_t hm2_normx = (float(perlin_x)) / (642.0f) * hm2_size;
-			tVertices.push_back({ glm::vec3(0.0f + i, 0.0f + heightMap1.read(hm1_normx, hm1_normy) * 3 + heightMap2.read(hm2_normx, hm2_normy) * 0.5 , 0.0f + j), glm::vec2(i / length, j / breadth), glm::vec3(0, 1, 0)});
-			perlin_x++;
+			size_t hm1NormX = (float(perlinX)) / (normalisingFactor) * hm1Size;
+			size_t hm1NormY = (float(perlinY)) / (normalisingFactor) * hm1Size;
+			size_t hm2NormY = (float(perlinY)) / (normalisingFactor) * hm2Size;
+			size_t hm2NormX = (float(perlinX)) / (normalisingFactor) * hm2Size;
+			tVertices.push_back({ glm::vec3(0.0f + i, 0.0f + heightMap1.read(hm1NormX, hm1NormY) * 3 + heightMap2.read(hm2NormX, hm2NormY) * 0.5 , 0.0f + j), glm::vec2(i / length, j / breadth), glm::vec3(0, 1, 0)});
+			perlinX++;
 		}
-		perlin_y++;
+		perlinY++;
 	}
 	std::vector<GLuint> indices;
 
