@@ -97,23 +97,34 @@ public:
 template<typename T>
 void perlinNoise(image2D<T>& image) {
 	//We are going to 'grid' the original image, where each grid is 50x50
-	//We are going to store, only the 50x50 random vectors
+	//We are going to store, only the 100x100 random vectors
 
 	size_t size_x = image.size().x;
 	size_t size_y = image.size().y;
 
-	glm::vec2 cornerVecSize = { size_x / 100, size_y / 100};
+	glm::vec2 cornerVecSize = { size_x / 100 + 1, size_y / 100 + 1};
 	image2D<vector2D> cornerVecs(cornerVecSize.x, cornerVecSize.y);
 	for (size_t x = 0; x < cornerVecSize.x; x++)
 		for (size_t y = 0; y < cornerVecSize.y; y++)
 			cornerVecs.write(x, y, randomGradient(vector2D(x, y)), 0);
 
+	auto fade = [](float t) -> float { return t * t * t * (t * (t * 6 - 15) + 10);}; // Quintic curve
+	std::ofstream out("newfile.txt");
+	std::streambuf* coutbuf = std::cout.rdbuf(); // Save old buffer
+	std::cout.rdbuf(out.rdbuf());   // Redirect std::cout to file
+	std::cout << "P3\n";
+	std::cout << 500 << " " << 500 << "\n";
+	std::cout << "255\n";
 	for (size_t x = 0; x < size_x; x++) {
 		for (size_t y = 0; y < size_y; y++) {
 			float u;
 			float v;
 			u = float(y % 100) / 100; //u goes towards 1 along the x-axis, and in the case of a 2D array, going across the x-axis is changing the value of y
 			v = float(x % 100) / 100; //same as above but for v and y-axis
+
+			//std::cout << u << ", " << v;
+			u = fade(u);
+			v = fade(v);
 
 			size_t x_index = x / 100; //The indices of the abstract grid cells, which one we're in rn, it also starts from 0
 			size_t y_index = y / 100;
@@ -140,12 +151,14 @@ void perlinNoise(image2D<T>& image) {
 
 			//interpolating the top and bottom vectors along the y axis
 			double perlin = mix(b, t, v);
-			
+			perlin = (perlin + 1.0) * 0.5;
 			//don't want y to be negative
 			//perlin = fabs(perlin);
 			//decreasing the value
 			//perlin = perlin / 2;
+			std::cout << static_cast<int>(perlin * 255) << " " << static_cast<int>(perlin * 255)<< " " << static_cast<int>(perlin * 255) << " ";
 			image.write(x, y, perlin, 0);
 		}
+		std::cout << "\n";
 	}
 }
