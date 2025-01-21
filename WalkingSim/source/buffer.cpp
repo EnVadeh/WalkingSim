@@ -146,6 +146,8 @@ terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadt
 	image2D<double>heightMap2(hm2Size, hm2Size);
 	perlinNoise(heightMap1, 50, true);
 	perlinNoise(heightMap2, 20, false);
+	float heightScale1 = 3.5;
+	float heightScale2 = 0.8;
 
 	//std::ofstream out("newfile.txt");
 	//std::streambuf* coutbuf = std::cout.rdbuf(); // Save old buffer
@@ -169,7 +171,14 @@ terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadt
 			size_t hm1NormY = (float(perlinY)) / (normalisingFactor) * hm1Size;
 			size_t hm2NormY = (float(perlinY)) / (normalisingFactor) * hm2Size;
 			size_t hm2NormX = (float(perlinX)) / (normalisingFactor) * hm2Size;
-			tVertices.push_back({ glm::vec3(0.0f + i, 0.0f + heightMap1.read(hm1NormX, hm1NormY) * 3 + heightMap2.read(hm2NormX, hm2NormY) * 0.5 , 0.0f + j), glm::vec2(i / length, j / breadth), glm::vec3(0, 1, 0)});
+			//I want to calculate the normal of this vertex, to do that I can basiaclly the cross product of vectors
+			//from +x to -x and +z to -z
+			//since the terrain is made from 0 to +x axis and 0 to + z axis:
+			glm::vec3 xVec = glm::vec3(i + 1, heightMap1.read(hm1NormX + 1, hm1NormY) * heightScale1 + heightMap2.read(hm2NormX + 1, hm1NormY) * heightScale2, j) - glm::vec3(i - 1, heightMap1.read(hm1NormX - 1, hm1NormY) * heightScale1 + heightMap2.read(hm2NormX - 1, hm1NormY) * heightScale2, j);
+			//glm::vec3 zVec = glm::vec3(i, heightMap1.read(hm1NormX, hm1NormY - 1) * heightScale1 + heightMap2.read(hm2NormX + 1, hm1NormY) * heightScale2, j) - glm::vec3(i, heightMap1.read(hm1NormX - 1, hm1NormY) * heightScale1 + heightMap2.read(hm2NormX - 1, hm1NormY) * heightScale2, j);
+			
+
+			tVertices.push_back({ glm::vec3(0.0f + i, 0.0f + heightMap1.read(hm1NormX, hm1NormY) * heightScale1 + heightMap2.read(hm2NormX, hm2NormY) * heightScale2 , 0.0f + j), glm::vec2(i / length, j / breadth), glm::vec3(0, 1, 0)});
 			perlinX++;
 		}
 		perlinY++;
