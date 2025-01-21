@@ -6,6 +6,7 @@ const int TRANSMITTANCE_TEXTURE_WIDTH = 1024;
 const int TRANSMITTANCE_TEXTURE_HEIGHT = 1024;
 const double PI = 3.1415;
 const vec3 absorption_extinction = { 7.0e-7, 3.54e-7, 1.52e-7 };
+const int NUM_SAMPLES = 50;
 
 struct atmosphereParams{
     float earthRad;
@@ -62,12 +63,6 @@ dvec2 densityAtHeight(double height){
     return dvec2(rayleighDensity, mieDensity);
 }
 
-double distanceToBoundary(float H, float theta){
-    
-         
-    return 0;
-}
-
 double vFromDir(dvec3 dir){
     double cosTheta = dot(dir, vec3(0, 1, 0)); //convert the direction to -1..+1
     cosTheta = -cosTheta; //prepare for normalisation
@@ -81,14 +76,29 @@ double thetaFromV(double v){
 }
 
 /*
+We only know the Angle at which the ray is travelling, and the height from the center from which the ray starts.
+We can make a triangle with one side 'a' as the straight line from the center to the ray Origin, whose value is the original height of the ray Origin (earthRad + altitude), 
+another side 'b' is the line form the ray Origin to the current sample point in the theta direction with the vertical, which is the distance from ray origin at altitude alt
+to the current sample point distance (step size * number of steps), finally the last side is distance from the center to the current sample point, which would be the 
+altitude of the point at the given sample point. Using cosine law with (PI - theta) as the angle between 'a' and 'b', we can calculate the value of 'c'
+Using Cosine law, C^2 =  A^2 + B^2 - 2ABcos(pi - theta)
+*/
+double sampleHeight(double alt, double theta, double sampleDistance){
+    double a2 = (atm.earthRad + alt) * (atm.earthRad * alt);
+    double b2 = sampleDistance * sampleDistance;
+    double c2 = a2 + b2 - 2 * sampleDistance * (atm.earthRad + alt) * cos(float(PI - theta));
+    return sqrt(c2);
+}
+
+/*
 To figure out the intersection length to the circumference/atmosphere, we can do so through triangle cosine law. //Thank you old man Taniwha from discord for helping me out
-think X, Y, Z as sides of a triangle, where X is the segment from center of the concentric circles (atmosphere and earth) to the height presently being worked on
-Z is the segment from the height to the atmosphere circumference at an angle theta with vertical linear
-and Y is the segment from concentric center to the point of intersection between Z segment and the circumference (equal to the radius of the atmosphere)
+The Earth and the atmosphere of the Earth can be seen as two concentric circles.
+Let's make a triangle with X, Y, Z as the sides, where X is the line segment from center of the concentric circles to the altitude presently being worked on
+Z is the line segment from the height to the atmosphere circumference at an angle theta with the vertical line
+Y is the line segment from the concentric center to the point of intersection between Z and the circumference of the outer circle(equal to the radius of the atmosphere)
 Using Cosine law, Y^2 = Z^2 - 2XZcos(pi-theta) + X^2
                   Z^2 + Z * -2Xcos(pi-theta) + (X^2 - Y^2)
-Now, using algebraic formula, we solve for Z
-                  
+Now, using the quadratic algebraic formula, we solve for Z
 */
 double intersectionLength(double alt, double theta){
     double a = 1;
@@ -106,12 +116,20 @@ double intersectionLength(double alt, double theta){
 }
 
 /*
-To find maximum angle, we find the tangent to the Earth from that altitude. Remember that the tangent to a circle is always perpendicular to the radius of the circle that intersescts that point of contact. 
-Then forms a right angled triangle where the hypoteneuse is the altitude + earthRad, the base is the length from the height to the point of contact with the Earth, and the perpendicular is the radius.
-Find the base or 'first segment' of the tangent, and then we can use trigonometry to find the Theta of the right angled triangle, after which we subtract PI/2 by theta and get the desired MaxTheta.
-
+The maximum vertical angle that a view ray can make from an altitude without the view ray being blocked off by the Earth itself will be infinitismally small degree less than the
+vertical angle a tangent makes to the Earth form that altitude.
+Remember that the tangent to a circle is always perpendicular to the Radius of the circle. 
+Using this, we can form a right angled triangle where the Hypoteneuse is the line segment from the center of the Earth to the current altitdue (earthRad + altitude).
+The perpendicular of the right angled triangle will be the line segment from the center to the tangent contact point, with the length of earthRad.
+The base of the right angled triangle will then be the 'first segment' of the tangent (the segment of the tangent from the starting point to the point of contact).
+Let's assume that the angle of the right angled triangle relative to which we have defined the base and perpendicular is alpha. 
+We use pythogoraus theorem to find the value of the base of the triangle. 
+We can then use basic trigonometry to find the value of the inner angle.
+We know, Cos(alpha) = base/Hypoteneus
+                    = segment/(altitude+earthRad)
+We need to find maximum theta, which is the outer angle, so it will be PI - alpha
 Theta = PI - arcos(sqrt((alt + earthRad)^2 - earthRad^2)/(alt + earthRad))
-So, we subtract the theta by a small number since we don't want to touch the planet
+We then need to subtract a small number to it since we don't want the ray to touch the planet
 */
 double maxTheta(double altitude){ //read the comment above for clarification of variable names
     double hypo = altitude + atm.earthRad;
@@ -125,9 +143,27 @@ dvec3 computeTransmittance(dvec2 frag_coord){
     double alt = (atm.atmosphereRad - atm.earthRad) * frag_coord.x + 0.1;
     double theta = thetaFromV(frag_coord.y);
     double mTheta = maxTheta(alt);
+    
     if(theta > mTheta)
         return vec3(1, 0, 0);
+    
     double maxDist = intersectionLength(alt, theta);
+    double stepSize = maxDist/NUM_SAMPLES;
+    double rayleigh = 0;
+    double mie = 0;
+
+    for(int i = 0; i < NUM_SAMPLES; i++){
+        double currentDist = stepSize * i;
+        double currentHeight = sampleHeight(alt, theta, currentDist);
+        dvec2 density = densityAtHeight(currentHeight);
+        density = density * stepSize;
+        rayleigh = rayleigh + density.x;
+        mie = mie + density.y;
+    }
+
+    dvec3 rayleighOutScat = 4 * PI * atm.betaR;
+    dvec3 mieOutScat = 4 * PI * atm.betaMext;
+    //now this is only for the outscattering to random point, we calculate outscattering ot the sun too and then that's the inscattering afaik
     return dvec3(alt, theta, maxDist);
 
 }
