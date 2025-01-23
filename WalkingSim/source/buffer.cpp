@@ -174,11 +174,16 @@ terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadt
 			//I want to calculate the normal of this vertex, to do that I can basiaclly the cross product of vectors
 			//from +x to -x and +z to -z
 			//since the terrain is made from 0 to +x axis and 0 to + z axis:
-			glm::vec3 xVec = glm::vec3(i + 1, heightMap1.read(hm1NormX + 1, hm1NormY) * heightScale1 + heightMap2.read(hm2NormX + 1, hm1NormY) * heightScale2, j) - glm::vec3(i - 1, heightMap1.read(hm1NormX - 1, hm1NormY) * heightScale1 + heightMap2.read(hm2NormX - 1, hm1NormY) * heightScale2, j);
-			//glm::vec3 zVec = glm::vec3(i, heightMap1.read(hm1NormX, hm1NormY - 1) * heightScale1 + heightMap2.read(hm2NormX + 1, hm1NormY) * heightScale2, j) - glm::vec3(i, heightMap1.read(hm1NormX - 1, hm1NormY) * heightScale1 + heightMap2.read(hm2NormX - 1, hm1NormY) * heightScale2, j);
-			
+			//less than 0 = fucked
 
-			tVertices.push_back({ glm::vec3(0.0f + i, 0.0f + heightMap1.read(hm1NormX, hm1NormY) * heightScale1 + heightMap2.read(hm2NormX, hm2NormY) * heightScale2 , 0.0f + j), glm::vec2(i / length, j / breadth), glm::vec3(0, 1, 0)});
+
+
+			glm::vec3 xVec = glm::vec3(i + 1, heightMap1.clampRead(hm1NormX + 1, hm1NormY) * heightScale1 + heightMap2.clampRead(hm2NormX + 1, hm2NormY) * heightScale2, j) - glm::vec3(i > 1? i - 1 : 0, heightMap1.clampRead(hm1NormX > 1? hm1NormX - 1 : 0, hm1NormY) * heightScale1 + heightMap2.clampRead(hm2NormX > 1? hm2NormX - 1 : 0, hm2NormY) * heightScale2, j);
+			glm::vec3 zVec = glm::vec3(i, heightMap1.clampRead(hm1NormX, hm1NormY + 1) * heightScale1 + heightMap2.clampRead(hm2NormX, hm2NormY + 1) * heightScale2, j  + 1) - glm::vec3(i, heightMap1.clampRead(hm1NormX, hm1NormY > 1 ? hm1NormY - 1 : 0) * heightScale1 + heightMap2.clampRead(hm2NormX, hm2NormY > 1 ? hm2NormY - 1 : 0) * heightScale2, j > 1? j - 1: 0);
+			
+			glm::vec3 norm = glm::cross(zVec, xVec);
+
+			tVertices.push_back({ glm::vec3(0.0f + i, 0.0f + heightMap1.clampRead(hm1NormX, hm1NormY) * heightScale1 + heightMap2.safeRead(hm2NormX, hm2NormY) * heightScale2 , 0.0f + j), glm::vec2(i / length, j / breadth), norm});
 			perlinX++;
 		}
 		perlinY++;
