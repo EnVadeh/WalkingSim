@@ -139,16 +139,18 @@ double maxTheta(double altitude){ //read the comment above for clarification of 
     return (theta - 0.01);
 }
 
-dvec3 computeTransmittance(dvec2 frag_coord){
-    double alt = (atm.atmosphereRad - atm.earthRad) * frag_coord.x + 0.1;
-    double theta = thetaFromV(frag_coord.y);
+void computeOutIntegral(dvec2 fragCoord, out dvec3 rayleighOutScat, out dvec3 mieOutScat){
+    double alt = (atm.atmosphereRad - atm.earthRad) * fragCoord.x + 0.1;
+    double theta = thetaFromV(fragCoord.y);
     double mTheta = maxTheta(alt);
     
+    rayleighOutScat = dvec3(0, 0, 0);
+    mieOutScat = dvec3(0, 0, 0);
     if(theta > mTheta)
-        return vec3(1, 0, 0);
-    
+        return;
+    //rayleighOutScat = dvec3(0, 1, 0);
     double maxDist = intersectionLength(alt, theta);
-    double stepSize = maxDist/NUM_SAMPLES;
+    double stepSize = maxDist/float(NUM_SAMPLES);
     double rayleigh = 0;
     double mie = 0;
 
@@ -161,11 +163,10 @@ dvec3 computeTransmittance(dvec2 frag_coord){
         mie = mie + density.y;
     }
 
-    dvec3 rayleighOutScat = 4 * PI * atm.betaR;
-    dvec3 mieOutScat = 4 * PI * atm.betaMext;
+    rayleighOutScat = 4 * PI * atm.betaR;
+    mieOutScat = 4 * PI * atm.betaMext;
     //now this is only for the outscattering to random point, we calculate outscattering ot the sun too and then that's the inscattering afaik
-    return dvec3(alt, theta, maxDist);
-
+    return;
 }
 
 void main() {
@@ -175,8 +176,11 @@ void main() {
         return;
     }
     
-    dvec2 frag_coord = dvec2(double(pixelCoords.x)/1023, double(pixelCoords.y)/1023);
-    dvec3 transmittance = computeTransmittance(frag_coord);
+    dvec2 fragCoord = dvec2((pixelCoords.x)/1023.f, (pixelCoords.y)/1023.f);
+    dvec3 rayleighOutScat = {0, 0, 0};
+    dvec3 mieOutScat = {0, 0, 0};
+    computeOutIntegral(fragCoord, rayleighOutScat, mieOutScat);
+    
     // Write the data to the output texture
-    imageStore(transmittanceLUT, pixelCoords, vec4(transmittance, 1.0));
+    imageStore(transmittanceLUT, pixelCoords, vec4(rayleighOutScat, 0.0));
 }
