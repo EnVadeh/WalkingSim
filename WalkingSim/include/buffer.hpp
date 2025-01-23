@@ -91,18 +91,15 @@ public:
 	void draw(GLuint shaderID);
 };
 
-//Let's try to use lambas I guess. So first we have a calculatePerlin function that takes in either Horizontal Lerp func or Vertical Lerp func? 
-
-//This is broken, I need to make small grids here...
 template<typename T>
-void perlinNoise(image2D<T>& image, int grid_size, bool clampNegative) {
-	//We are going to 'grid' the original image, where each grid is 50x50
-	//We are going to store, only the 100x100 random vectors
+void perlinNoise(image2D<T>& image, int gridSize, bool clampNegative) {
+	//We are going to 'grid' the original image, where each grid is sizexsize
+	//We are going to store, only the sizexsize random vectors
 
 	size_t size_x = image.size().x;
 	size_t size_y = image.size().y;
 
-	glm::vec2 cornerVecSize = { size_x / grid_size +1, size_y / grid_size + 1};
+	glm::vec2 cornerVecSize = { size_x / gridSize +1, size_y / gridSize + 1};
 	image2D<vector2D> cornerVecs(cornerVecSize.x, cornerVecSize.y);
 	for (size_t x = 0; x < cornerVecSize.x; x++)
 		for (size_t y = 0; y < cornerVecSize.y; y++)
@@ -120,15 +117,15 @@ void perlinNoise(image2D<T>& image, int grid_size, bool clampNegative) {
 		for (size_t x = 0; x < size_x; x++) {
 			float u;
 			float v;
-			u = float(x % grid_size) / grid_size; 
-			v = float(y % grid_size) / grid_size;
+			u = float(x % gridSize) / gridSize; 
+			v = float(y % gridSize) / gridSize;
 
 			//std::cout << u << ", " << v;
 			u = fade(u);
 			v = fade(v);
 
-			size_t x_index = x / grid_size; //The indices of the abstract grid cells, which one we're in rn, it also starts from 0
-			size_t y_index = y / grid_size;
+			size_t x_index = x / gridSize; //The indices of the abstract grid cells, which one we're in rn, it also starts from 0
+			size_t y_index = y / gridSize;
 
 			vector2D pos = vector2D(u, v);//current position in 0-1
 
@@ -141,10 +138,10 @@ void perlinNoise(image2D<T>& image, int grid_size, bool clampNegative) {
 			vector2D br = pos - vector2D(1,0);
 
 			//Dot products between the corner vectors and the direction vectors from the corner to position
-			double tld = dotProduct(tl, cornerVecs.read(x_index, y_index + 1));
-			double trd = dotProduct(tr, cornerVecs.read(x_index + 1, y_index + 1));
-			double bld = dotProduct(bl, cornerVecs.read(x_index, y_index));
-			double brd = dotProduct(br, cornerVecs.read(x_index + 1, y_index));
+			double tld = dotProduct(tl, cornerVecs.safeRead(x_index, y_index + 1));
+			double trd = dotProduct(tr, cornerVecs.safeRead(x_index + 1, y_index + 1));
+			double bld = dotProduct(bl, cornerVecs.safeRead(x_index, y_index));
+			double brd = dotProduct(br, cornerVecs.safeRead(x_index + 1, y_index));
 
 			//interpolating the left and right vectors along top and bottom
 			double t = mix(tld, trd, u);
