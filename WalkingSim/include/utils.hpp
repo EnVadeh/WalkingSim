@@ -135,12 +135,12 @@ private:
 public:
 	image2D(size_t row, size_t columns);
 	void write(size_t x, size_t y, T data, bool replace); //The indexing starts from 0
-	T read(size_t x, size_t y) const; //const after a method signifies that the method doesn't change the object's state (members)
+	T safeRead(size_t x, size_t y) const; //const after a method signifies that the method doesn't change the object's state (members)
+	T clampRead(size_t x, size_t y) const;
 	T directRead(size_t index) const;
 	glm::vec2 size();
 	glm::vec2 index(size_t num);
 };
-
 
 template <typename T>
 image2D<T>::image2D(size_t row, size_t columns) {
@@ -172,11 +172,28 @@ void image2D<T>::write(size_t x, size_t y, T data, bool replace){
 }
 
 template <typename T>
-T image2D<T>::read(size_t x, size_t y) const
+T image2D<T>::safeRead(size_t x, size_t y) const
 {
-	size_t new_x = x % width;
-	size_t new_y = y % height;
-	return image[new_x + new_y * width];
+	size_t newX = x % width;
+	size_t newY = y % height;
+	return image[newX + newY * width];
+}
+
+template <typename T>
+T image2D<T>::clampRead(size_t x, size_t y) const
+{
+	size_t newX = x;
+	size_t newY = y;
+	if (newX < 0)
+		newX = 0;
+	if (newX >= width)
+		newX = width - 1;
+	if (newY < 0)
+		newY = 0;
+	if (newY >= height)
+		newY = height - 1;
+	
+	return image[newX + newY * width];
 }
 
 template <typename T>
