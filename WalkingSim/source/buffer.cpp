@@ -84,10 +84,10 @@ frameBuffer::frameBuffer() {
 
 frameBuffer::frameBuffer(bool depthOnly) : depthOnly(depthOnly) {
 	glCreateFramebuffers(1, &FBO);
-
+	RBO = -1;
 	glCreateTextures(GL_TEXTURE_2D, 1, &shadowRT);
 
-	glTextureStorage2D(shadowRT, 1, GL_DEPTH_COMPONENT, 2048, 2048);
+	glTextureStorage2D(shadowRT, 1, GL_DEPTH_COMPONENT32F, 4096, 4096);
 	
 	glTextureParameteri(shadowRT, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(shadowRT, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -97,6 +97,7 @@ frameBuffer::frameBuffer(bool depthOnly) : depthOnly(depthOnly) {
 	glNamedFramebufferTexture(FBO, GL_DEPTH_ATTACHMENT, shadowRT, 0);
 
 	glNamedFramebufferDrawBuffer(FBO, GL_NONE);
+	glNamedFramebufferReadBuffer(FBO, GL_NONE);
 }
 
 void frameBuffer::setupRenderBuffer() {
@@ -163,6 +164,7 @@ terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadt
 	//	//std::cout<<"\n";
 	//}
 	//Generating triangles row wise
+
 	size_t perlinY = 0;
 	for (float j = 0; j < breadth + stepSize; j = j + stepSize) {
 	size_t perlinX = 0;
@@ -175,13 +177,15 @@ terrain::terrain(size_t length, size_t breadth) : length(length), breadth(breadt
 			//from +x to -x and +z to -z
 			//since the terrain is made from 0 to +x axis and 0 to + z axis:
 			//less than 0 = fucked
+			//glm::vec3 xVec = glm::vec3(perlinX + 3, heightMap1.clampRead(hm1NormX + 3, hm1NormY) + heightMap2.clampRead(hm2NormX + 3, hm2NormY), perlinY) - glm::vec3(perlinX > 3? perlinX - 3 : 0, heightMap1.clampRead(hm1NormX > 3? hm1NormX - 3 : 0, hm1NormY) + heightMap2.clampRead(hm2NormX > 3? hm2NormX - 3 : 0, hm2NormY) , perlinY);
+			//glm::vec3 zVec = -glm::vec3(perlinX, heightMap1.clampRead(hm1NormX, hm1NormY + 3) + heightMap2.clampRead(hm2NormX, hm2NormY + 3), perlinY  + 3) + glm::vec3(perlinX, heightMap1.clampRead(hm1NormX, hm1NormY > 3 ? hm1NormY - 3 : 0) + heightMap2.clampRead(hm2NormX, hm2NormY > 3 ? hm2NormY - 3 : 0) , perlinY > 3? perlinY - 3: 0);
 
+			float DX = (heightMap1.clampRead(hm1NormX + 3, hm1NormY) * heightScale1 + heightMap2.clampRead(hm2NormX + 3, hm2NormY) * heightScale2) - (heightMap1.clampRead(hm1NormX > 3 ? hm1NormX - 3 : 0, hm1NormY) * heightScale1 + heightMap2.clampRead(hm2NormX > 3 ? hm2NormX - 3 : 0, hm2NormY) * heightScale2);
+			float DZ = -(heightMap1.clampRead(hm1NormX, hm1NormY > 3 ? hm1NormY - 3 : 0) * heightScale1 + heightMap2.clampRead(hm2NormX, hm2NormY > 3 ? hm2NormY - 3 : 0) * heightScale2) + (heightMap1.clampRead(hm1NormX, hm1NormY + 3) * heightScale1 + heightMap2.clampRead(hm2NormX, hm2NormY + 3) * heightScale2);
+			glm::vec3 xVec = glm::vec3(1, DX, 0);
+			glm::vec3 zVec = glm::vec3(0, DZ, 1);
 
-
-			glm::vec3 xVec = glm::vec3(i + 1, heightMap1.clampRead(hm1NormX + 1, hm1NormY) * heightScale1 + heightMap2.clampRead(hm2NormX + 1, hm2NormY) * heightScale2, j) - glm::vec3(i > 1? i - 1 : 0, heightMap1.clampRead(hm1NormX > 1? hm1NormX - 1 : 0, hm1NormY) * heightScale1 + heightMap2.clampRead(hm2NormX > 1? hm2NormX - 1 : 0, hm2NormY) * heightScale2, j);
-			glm::vec3 zVec = glm::vec3(i, heightMap1.clampRead(hm1NormX, hm1NormY + 1) * heightScale1 + heightMap2.clampRead(hm2NormX, hm2NormY + 1) * heightScale2, j  + 1) - glm::vec3(i, heightMap1.clampRead(hm1NormX, hm1NormY > 1 ? hm1NormY - 1 : 0) * heightScale1 + heightMap2.clampRead(hm2NormX, hm2NormY > 1 ? hm2NormY - 1 : 0) * heightScale2, j > 1? j - 1: 0);
-			
-			glm::vec3 norm = glm::cross(zVec, xVec);
+			glm::vec3 norm = (glm::cross(zVec, xVec)) ;
 
 			tVertices.push_back({ glm::vec3(0.0f + i, 0.0f + heightMap1.clampRead(hm1NormX, hm1NormY) * heightScale1 + heightMap2.safeRead(hm2NormX, hm2NormY) * heightScale2 , 0.0f + j), glm::vec2(i / length, j / breadth), norm});
 			perlinX++;
