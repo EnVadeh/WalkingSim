@@ -159,6 +159,5 @@ void perlinNoise(image2D<T>& image, int gridSize, bool clampNegative) {
 			//std::cout << static_cast<int>(perlin * 255) << " " << static_cast<int>(perlin * 255)<< " " << static_cast<int>(perlin * 255) << " ";
 			image.write(x, y, perlin, 0);
 		}
-		std::cout << "\n";
 	}
 }
