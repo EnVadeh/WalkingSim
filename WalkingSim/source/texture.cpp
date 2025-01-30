@@ -35,7 +35,7 @@ void textureManager::loadTexture(const std::string& path, const std::string& nam
 		std::cout << "Failed to load texture: " << path << std::endl;
 }
 
-void textureManager::bindTexture(size_t unit, size_t index, size_t count, GLuint shaderID) {
+void textureManager::bindTexture(size_t index, size_t unit, size_t count, GLuint shaderID) {
 	if (index > texNum || index + count > texNum) {
 		std::cout << "Texture out of range!" << std::endl;
 		return;
