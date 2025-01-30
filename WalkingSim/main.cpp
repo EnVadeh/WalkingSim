@@ -96,6 +96,9 @@ int main() {
 	shader SS("shaders/skyBoxVS.glsl", "shaders/skyBoxFS.glsl");
 	GLuint skyProgram = SS.createShader();
 	
+	shader SM("shaders/shadowVS.glsl", "shaders/shadowFS.glsl");
+	GLuint shadowProgram = SM.createShader();
+
 	textureManager testure;
 	testure.loadTexture("E:/NEW_DOanload/grtex.jpg", "water");
 	
@@ -107,10 +110,11 @@ int main() {
 	mainCam = &myCam;
 
 	lightManager testlights;
-	testlights.initLight(glm::vec4(-0.7071, -0.7071, 0, 0), glm::vec4(1, 0, 0, 0));
+	testlights.initLight(glm::vec4(-0.8071, -0.3571, 0, 0), glm::vec4(1, 0, 0, 0));
 	testlights.turnOn(0);
 	testlights.setLights();//binding = 0
 
+	frameBuffer shadowpass(true);
 	frameBuffer firstpass;
 	screenQuad screen(1000, 1000);
 
@@ -166,6 +170,8 @@ int main() {
 		glDepthFunc(GL_LESS);
 		glDepthMask(GL_TRUE);
 		//shadow buffer shit
+		shadowpass.bind();
+		cM.checkPos(shadowProgram);
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
@@ -188,8 +194,8 @@ int main() {
 		glDisable(GL_STENCIL_TEST);
 		firstpass.bind();
 		//glDisable(GL_CULL_FACE);
-
 		noise.bindTexture(0, 0, 1, testShader);
+		shadowpass.sample(testShader, 1);
 		cM.checkPos(testShader);
 		glDepthFunc(GL_LEQUAL);
 		LUTs.bind(skyProgram);
