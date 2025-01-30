@@ -8,6 +8,8 @@ struct light {
 	glm::vec4 vLightColor = glm::vec4(0, 0, 0, 0);
 	glm::vec4 vEndPointA = glm::vec4(0, 0, 0, 0);
 	glm::vec4 vEndPointB = glm::vec4(0, 0, 0, 0);
+	glm::mat4 mProjection = glm::mat4(0);
+	glm::mat4 mView = glm::mat4(0);
 	bool isOn;
 	lightType type;
 };
@@ -19,6 +21,8 @@ struct lightUBOData {
 	glm::vec4 vLightColor = glm::vec4(0, 0, 0, 0);
 	glm::vec4 vEndPointA = glm::vec4(0, 0, 0, 0);
 	glm::vec4 vEndPointB = glm::vec4(0, 0, 0, 0);
+	glm::mat4 mProjection = glm::mat4(0);
+	glm::mat4 mView = glm::mat4(0);
 };
 
 class lightManager {
